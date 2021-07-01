@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model User {
+    id       Int    @id @default(autoincrement())
+    email    String @unique
+    password String
+
+    @@map(name: "users")
+}
+
+model Player {
+    id        Int    @id @default(autoincrement())
+    firstname String
+    lastname  String
+    color     Color? @relation(fields: [colorId], references: [id])
+    colorId   Int?
+
+    @@map(name: "players")
+}
+
+model Color {
+    id      Int      @id @default(autoincrement())
+    players Player[]
+    name    String   @unique
+    hexCode String?
+
+    @@map(name: "colors")
+}

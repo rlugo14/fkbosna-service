@@ -1,0 +1,115 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Color {
+  id: ID!
+  hexCode: String!
+  name: String!
+  players: [Player!]!
+}
+
+type Player {
+  id: ID!
+  firstname: String!
+  lastname: String!
+  color: Color
+}
+
+type BatchResponse {
+  count: Float!
+}
+
+type User {
+  id: ID!
+  email: String!
+  password: String!
+}
+
+type RegisteredUser {
+  id: ID!
+  email: String!
+}
+
+type Query {
+  player(id: Float!): Player!
+  players(skip: Int = 0, take: Int = 25): [Player!]!
+  color(name: String, id: Float): Color!
+  colors(skip: Int = 0, take: Int = 25): [Color!]!
+  me: User!
+}
+
+type Mutation {
+  createPlayer(data: CreatePlayerInput!): Player!
+  createManyPlayers(players: CreateManyPlayersInput!): BatchResponse!
+  deletePlayer(id: Float!): Boolean!
+  updatePlayer(where: PlayerWhereUniqueInput!, data: UpdatePlayerInput!): Player!
+  updateManyPlayers(where: PlayersWhereUniqueInput!, data: UpdatePlayerInput!): BatchResponse!
+  createColor(data: CreateColorInput!): Color!
+  createManyColors(colors: CreateManyColorsInput!): BatchResponse!
+  deleteColor(id: Float!): Boolean!
+  deleteManyColors(colors: DeleteManyColorsInput!): BatchResponse!
+  updateColor(data: UpdateColorInput!): Color!
+  login(password: String!, email: String!): String!
+  register(password: String!, email: String!): RegisteredUser!
+}
+
+input CreatePlayerInput {
+  firstname: String!
+  lastname: String!
+  colorId: Float
+  color: ColorWhereUniqueInput
+}
+
+input ColorWhereUniqueInput {
+  name: String!
+  hexCode: String
+}
+
+input CreateManyPlayersInput {
+  data: [CreatePlayerInput!]!
+}
+
+input PlayerWhereUniqueInput {
+  id: Float!
+}
+
+input UpdatePlayerInput {
+  firstname: String
+  lastname: String
+  color: CreateOrConnectColorInput
+}
+
+input CreateOrConnectColorInput {
+  hexCode: String!
+  name: String!
+}
+
+input PlayersWhereUniqueInput {
+  ids: [Float!]!
+}
+
+input CreateColorInput {
+  name: String!
+  hexCode: String!
+}
+
+input CreateManyColorsInput {
+  data: [CreateColorInput!]!
+}
+
+input DeleteManyColorsInput {
+  ids: [Float!]
+  names: [String!]
+}
+
+input UpdateColorInput {
+  name: String
+  hexCode: String
+  where: ColorWhereUniqueInput!
+}
+
+type Subscription {
+  playerAdded: Player!
+  colorAdded: Color!
+}
