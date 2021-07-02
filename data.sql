@@ -4,7 +4,7 @@
 -- https://tableplus.com/
 --
 -- Database: fkbosna
--- Generation Time: 2021-07-02 14:54:16.8160
+-- Generation Time: 2021-07-02 16:02:55.0600
 -- -------------------------------------------------------------
 
 
@@ -58,7 +58,7 @@ CREATE TABLE `users` (
   `password` varchar(191) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users.email_unique` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO `_prisma_migrations` (`id`, `checksum`, `finished_at`, `migration_name`, `logs`, `rolled_back_at`, `started_at`, `applied_steps_count`) VALUES
 ('0f39ad3b-aeba-4d73-90ba-a98cc4deabb4', '14dd78d21a768372e6f1d99fbd33a40f596d07a532e7766741d2c9345495a157', '2021-07-02 12:41:52.807', '20210624165252_', NULL, NULL, '2021-07-02 12:41:52.770', 1),
@@ -101,6 +101,9 @@ INSERT INTO `players` (`id`, `firstname`, `lastname`, `colorId`) VALUES
 (24, 'Benedict', 'Stoffels', 3),
 (25, 'Frederik', 'Hützen', 3),
 (26, 'Isi', 'Agic', 3);
+
+INSERT INTO `users` (`id`, `email`, `password`) VALUES
+(1, 'nermin@dimego.de', '$2b$10$R4v6HjnZQ7gFGd071IXeS.NSV3r0x5ngVVVo4wrj0A4vY7t19SHhW');
 
 
 
