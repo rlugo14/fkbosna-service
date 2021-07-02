@@ -4,7 +4,6 @@ mutation {
       data: [
         { name: "YELLOW", hexCode: "#FFC000" }
         { name: "BLUE", hexCode: "#0070C0" }
-        { name: "WHITE", hexCode: "#FFFFFF" }
         { name: "RED", hexCode: "#EA0202" }
       ]
     }

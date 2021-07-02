@@ -2,31 +2,34 @@ mutation {
   createManyPlayers(
     players: {
       data: [
-        { firstname: "Mohammed", lastname: "Jeha", colorId: 1 }
-        { firstname: "Semir", lastname: "Borogovac", colorId: 2 }
-        { firstname: "Hakim", lastname: "Boussaria", colorId: 3 }
-        { firstname: "Tino", lastname: "Divkovic", colorId: 4 }
+        { firstname: "Hakim", lastname: "Boussaria", colorId: 1 }
+        { firstname: "Kevin", lastname: "Leuschner", colorId: 1}
+        { firstname: "Hazim", lastname: "Muharemovic", colorId: 1 }
+        { firstname: "Tino", lastname: "Divkovic", colorId: 1 }
+        { firstname: "Raul", lastname: "Lugo", colorId: 1}
         { firstname: "Alexander", lastname: "Breuer", colorId: 1 }
-        { firstname: "Isi", lastname: "Agic", colorId: 2 }
-        { firstname: "Adin", lastname: "Civa", colorId: 3 }
-        { firstname: "Elwin", lastname: "Hadzic", colorId: 4 }
-        { firstname: "Haris", lastname: "Dedic", colorId: 1 }
-        { firstname: "Patrick", lastname: "Werchau", colorId: 2 }
-        { firstname: "Khashayar", lastname: "Goudarzi", colorId: 3 }
-        { firstname: "Eldar", lastname: "Junuzovic", colorId: 4 }
-        { firstname: "Frederik", lastname: "Hützen", colorId: 1 }
-        { firstname: "Charisma", lastname: "Kumah", colorId: 2 }
-        { firstname: "Kevin", lastname: "Leuschner", colorId: 3 }
-        { firstname: "Raul", lastname: "Lugo", colorId: 4 }
+        { firstname: "Ramiz", lastname: "Sabotic", colorId: 1 }
+        { firstname: "Ademin", lastname: "Hadzic", colorId: 1 }
         { firstname: "Mirnes", lastname: "Mehovic", colorId: 1 }
-        { firstname: "Hazim", lastname: "Muharemovic", colorId: 2 }
+        
+        { firstname: "Semir", lastname: "Borogovac", colorId: 2 }
+        { firstname: "Dario", lastname: "Priesmeyer", colorId: 2 }
+        { firstname: "Mohammed", lastname: "Jeha", colorId: 2 }
+        { firstname: "Khashayar", lastname: "Goudarzi", colorId: 2 }
+        { firstname: "Patrick", lastname: "Werchau", colorId: 2 }
+        { firstname: "Milutin", lastname: "Jovanovic", colorId: 2 }
+        { firstname: "Adin", lastname: "Civa", colorId: 2 }
+        { firstname: "Charisma", lastname: "Kumah", colorId: 2 }
+        { firstname: "Elwin", lastname: "Hadzic", colorId: 2 }
+        
+        { firstname: "Veli", lastname: "Velija", colorId: 3 }
         { firstname: "Andreas", lastname: "Sabelfeld", colorId: 3 }
-        { firstname: "Ramiz", lastname: "Sabotic", colorId: 4 }
-        { firstname: "Mirnes", lastname: "Selamovic", colorId: 1 }
-        { firstname: "Mladen", lastname: "Stjepanovic", colorId: 2 }
+        { firstname: "Eldar", lastname: "Junuzovic", colorId: 3 }
+        { firstname: "Haris", lastname: "Dedic", colorId: 3 }
+        { firstname: "Mirnes", lastname: "Selamovic", colorId: 3 }
         { firstname: "Benedict", lastname: "Stoffels", colorId: 3 }
-        { firstname: "Veli", lastname: "Velija", colorId: 4 }
-        { firstname: "Milutin", lastname: "Jovanovic", colorId: 1 }
+        { firstname: "Frederik", lastname: "Hützen", colorId: 3 }
+        { firstname: "Isi", lastname: "Agic", colorId: 3 }
       ]
     }
   ) {
