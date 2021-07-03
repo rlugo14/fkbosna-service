@@ -17,6 +17,10 @@ import { ConfigModule } from '@nestjs/config';
       context: ({ req }: { req: IncomingMessage }) => ({
         authorization: req.headers.authorization,
       }),
+      cors: {
+        credentials: true,
+        origin: true,
+    },
     }),
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
