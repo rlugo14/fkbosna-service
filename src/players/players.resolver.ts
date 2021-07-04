@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import {
   Args,
   Query,
@@ -23,6 +23,7 @@ import {
 } from './dto/update-player.input';
 import { Color } from '../colors/models/color.model';
 import { ResultArgs } from '../shared/dto/results.args';
+import { AuthGuard } from 'src/auth.guard';
 
 const pubSub = new PubSub();
 enum PlayerTopics {
@@ -58,6 +59,7 @@ export class PlayersResolver {
     return this.prismaService.player.findMany(playersArgs);
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => Player)
   async createPlayer(
     @Args('data') newPlayerInput: CreatePlayerInput,
@@ -86,6 +88,7 @@ export class PlayersResolver {
     return player;
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => BatchResponse)
   async createManyPlayers(
     @Args('players') newPlayersInput: CreateManyPlayersInput,
@@ -102,7 +105,7 @@ export class PlayersResolver {
       return { count: 0 };
     }
   }
-
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   async deletePlayer(@Args('id') id: number) {
     try {
@@ -112,7 +115,7 @@ export class PlayersResolver {
       return false;
     }
   }
-
+  @UseGuards(AuthGuard)
   @Mutation(() => Player)
   async updatePlayer(
     @Args('data') updatePlayerInput: UpdatePlayerInput,
@@ -136,7 +139,7 @@ export class PlayersResolver {
       where: whereUnique,
     });
   }
-
+  @UseGuards(AuthGuard)
   @Mutation(() => BatchResponse)
   async updateManyPlayers(
     @Args('data') updatePlayerInput: UpdatePlayerInput,

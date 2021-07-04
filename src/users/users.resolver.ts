@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { Args, Context, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { PrismaService } from '../prisma/prisma.service';
@@ -9,6 +10,7 @@ import { RegisteredUser, User } from './models/users.model';
 import * as bcrypt from 'bcrypt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { AuthService } from '../auth/auth.service';
+import { AuthGuard } from 'src/auth.guard';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -31,7 +33,7 @@ export class UsersResolver {
 
     return this.authService.createToken(user);
   }
-
+  @UseGuards(AuthGuard)
   @Mutation(() => RegisteredUser)
   async register(
     @Args('email') email: string,

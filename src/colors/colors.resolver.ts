@@ -55,6 +55,7 @@ export class ColorsResolver {
     return this.prismaService.color.findMany(resultArgs);
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => Color)
   async createColor(
     @Args('data') newColorInput: CreateColorInput,
@@ -72,6 +73,7 @@ export class ColorsResolver {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => BatchResponse)
   async createManyColors(
     @Args('colors') newColorsInput: CreateManyColorsInput,
@@ -94,6 +96,7 @@ export class ColorsResolver {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
   async deleteColor(@Args('id') id: number) {
     try {
@@ -105,6 +108,7 @@ export class ColorsResolver {
       return false;
     }
   }
+  @UseGuards(AuthGuard)
   @Mutation(() => BatchResponse)
   async deleteManyColors(
     @Args('colors') deleteManyInput: DeleteManyColorsInput,
@@ -121,6 +125,7 @@ export class ColorsResolver {
     });
   }
 
+  @UseGuards(AuthGuard)
   @Mutation(() => Color)
   async updateColor(
     @Args('data') updateInput: UpdateColorInput,
