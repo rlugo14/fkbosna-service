@@ -25,6 +25,11 @@ export class UsersResolver {
     @Args('password') password: string,
   ) {
     const user = await this.prismaService.user.findUnique({ where: { email } });
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
     const passwordMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordMatch) {
