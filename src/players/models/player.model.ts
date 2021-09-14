@@ -14,4 +14,7 @@ export class Player {
 
   @Field({ nullable: true })
   color?: Color;
+  
+  @Field()
+  fupaSlug?: string;
 }

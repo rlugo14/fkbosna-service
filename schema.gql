@@ -14,6 +14,7 @@ type Player {
   firstname: String!
   lastname: String!
   color: Color
+  fupaSlug: String!
 }
 
 type BatchResponse {
@@ -33,9 +34,9 @@ type RegisteredUser {
 
 type Query {
   player(id: Float!): Player!
-  players(skip: Int = 0, take: Int = 25): [Player!]!
+  players(skip: Int = 0, take: Int = 40): [Player!]!
   color(name: String, id: Float): Color!
-  colors(skip: Int = 0, take: Int = 25): [Color!]!
+  colors(skip: Int = 0, take: Int = 40): [Color!]!
   me: User!
 }
 
@@ -44,7 +45,7 @@ type Mutation {
   createManyPlayers(players: CreateManyPlayersInput!): BatchResponse!
   deletePlayer(id: Float!): Boolean!
   updatePlayer(where: PlayerWhereUniqueInput!, data: UpdatePlayerInput!): Player!
-  updateManyPlayers(where: PlayersWhereUniqueInput!, data: UpdatePlayerInput!): BatchResponse!
+  updateManyPlayers(where: PlayersWhereInput!, data: UpdatePlayerInput!): BatchResponse!
   createColor(data: CreateColorInput!): Color!
   createManyColors(colors: CreateManyColorsInput!): BatchResponse!
   deleteColor(id: Float!): Boolean!
@@ -77,6 +78,7 @@ input PlayerWhereUniqueInput {
 input UpdatePlayerInput {
   firstname: String
   lastname: String
+  fupaSlug: String
   color: CreateOrConnectColorInput
 }
 
@@ -85,8 +87,9 @@ input CreateOrConnectColorInput {
   name: String!
 }
 
-input PlayersWhereUniqueInput {
-  ids: [Float!]!
+input PlayersWhereInput {
+  ids: [Int!]
+  colorId: Int
 }
 
 input CreateColorInput {

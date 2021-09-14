@@ -10,5 +10,5 @@ export class ResultArgs {
   @Field(() => Int)
   @Min(1)
   @Max(50)
-  take = 25;
+  take = 40;
 }

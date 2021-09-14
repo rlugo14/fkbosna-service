@@ -24,6 +24,7 @@ model Player {
     lastname  String
     color     Color? @relation(fields: [colorId], references: [id])
     colorId   Int?
+    fupaSlug  String @default("")
 
     @@map(name: "players")
 }

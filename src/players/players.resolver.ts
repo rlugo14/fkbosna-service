@@ -17,7 +17,7 @@ import { Player } from './models/player.model';
 import { PubSub } from 'apollo-server-express';
 import { BatchResponse } from '../shared/dto/batch-response.model';
 import {
-  PlayersWhereUniqueInput,
+  PlayersWhereInput,
   PlayerWhereUniqueInput,
   UpdatePlayerInput,
 } from './dto/update-player.input';
@@ -121,11 +121,12 @@ export class PlayersResolver {
     @Args('data') updatePlayerInput: UpdatePlayerInput,
     @Args('where') whereUnique: PlayerWhereUniqueInput,
   ): Promise<Player> {
-    const { firstname, lastname, color } = updatePlayerInput;
+    const { firstname, lastname, color, fupaSlug } = updatePlayerInput;
     return this.prismaService.player.update({
       data: {
         firstname,
         lastname,
+        fupaSlug,
         color: {
           connectOrCreate: {
             where: { name: color.name },
@@ -143,10 +144,10 @@ export class PlayersResolver {
   @Mutation(() => BatchResponse)
   async updateManyPlayers(
     @Args('data') updatePlayerInput: UpdatePlayerInput,
-    @Args('where') whereUnique: PlayersWhereUniqueInput,
+    @Args('where') whereUnique: PlayersWhereInput,
   ): Promise<BatchResponse> {
     return this.prismaService.player.updateMany({
-      where: { id: { in: whereUnique.ids } },
+      where: { id: { in: whereUnique.ids }, colorId: whereUnique.colorId },
       data: updatePlayerInput,
     });
   }

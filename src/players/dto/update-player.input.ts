@@ -1,4 +1,4 @@
-import { Field, InputType } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 
 @InputType()
 export class PlayerWhereUniqueInput {
@@ -7,9 +7,12 @@ export class PlayerWhereUniqueInput {
 }
 
 @InputType()
-export class PlayersWhereUniqueInput {
-  @Field(() => [Number])
+export class PlayersWhereInput {
+  @Field(() => [Int], { nullable: true })
   ids: number[];
+  
+  @Field(() => Int, { nullable: true })
+  colorId: number;
 }
 
 @InputType()
@@ -28,6 +31,9 @@ export class UpdatePlayerInput {
 
   @Field({ nullable: true })
   lastname?: string;
+  
+  @Field({ nullable: true })
+  fupaSlug?: string;
 
   @Field(() => CreateOrConnectColorInput, { nullable: true })
   color?: CreateOrConnectColorInput;
