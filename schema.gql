@@ -46,6 +46,7 @@ type Mutation {
   deletePlayer(id: Float!): Boolean!
   updatePlayer(where: PlayerWhereUniqueInput!, data: UpdatePlayerInput!): Player!
   updateManyPlayers(where: PlayersWhereInput!, data: UpdatePlayerInput!): BatchResponse!
+  removePlayersColor(where: PlayersWhereInput!): BatchResponse!
   createColor(data: CreateColorInput!): Color!
   createManyColors(colors: CreateManyColorsInput!): BatchResponse!
   deleteColor(id: Float!): Boolean!

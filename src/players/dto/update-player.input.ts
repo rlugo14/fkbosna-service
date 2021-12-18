@@ -10,7 +10,7 @@ export class PlayerWhereUniqueInput {
 export class PlayersWhereInput {
   @Field(() => [Int], { nullable: true })
   ids: number[];
-  
+
   @Field(() => Int, { nullable: true })
   colorId: number;
 }
@@ -31,7 +31,7 @@ export class UpdatePlayerInput {
 
   @Field({ nullable: true })
   lastname?: string;
-  
+
   @Field({ nullable: true })
   fupaSlug?: string;
 

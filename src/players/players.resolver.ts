@@ -152,6 +152,18 @@ export class PlayersResolver {
     });
   }
 
+  @UseGuards(AuthGuard)
+  @Mutation(() => BatchResponse)
+  async removePlayersColor(
+    @Args('where') whereUnique: PlayersWhereInput,
+  ): Promise<BatchResponse> {
+    const ids = whereUnique.ids.map((id) => ({ id }));
+    return this.prismaService.player.updateMany({
+      data: { colorId: null },
+      where: { OR: ids },
+    });
+  }
+
   @Subscription(() => Player)
   playerAdded() {
     return pubSub.asyncIterator(PlayerTopics.playerAdded);
