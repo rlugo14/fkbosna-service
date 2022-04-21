@@ -65,21 +65,13 @@ export class PlayersResolver {
     @Args('data') newPlayerInput: CreatePlayerInput,
   ): Promise<Player> {
     const { firstname, lastname, colorId } = newPlayerInput;
-    const color = newPlayerInput.color;
     const player = await this.prismaService.player.create({
       data: {
         firstname,
         lastname,
         color: {
-          connectOrCreate: {
-            where: {
-              id: colorId,
-              name: color.name,
-            },
-            create: {
-              name: color.name.toUpperCase(),
-              hexCode: color.hexCode?.toUpperCase(),
-            },
+          connect: {
+            id: colorId,
           },
         },
       },
