@@ -60,12 +60,6 @@ input CreatePlayerInput {
   firstname: String!
   lastname: String!
   colorId: Float
-  color: ColorWhereUniqueInput
-}
-
-input ColorWhereUniqueInput {
-  name: String!
-  hexCode: String
 }
 
 input CreateManyPlayersInput {
@@ -111,6 +105,11 @@ input UpdateColorInput {
   name: String
   hexCode: String
   where: ColorWhereUniqueInput!
+}
+
+input ColorWhereUniqueInput {
+  name: String!
+  hexCode: String
 }
 
 type Subscription {
