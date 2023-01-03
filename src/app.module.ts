@@ -22,6 +22,7 @@ import { ConfigModule } from '@nestjs/config';
         origin: true,
     },
     }),
+    
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     PlayersModule,
