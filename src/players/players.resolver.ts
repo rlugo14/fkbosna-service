@@ -69,13 +69,16 @@ export class PlayersResolver {
       data: {
         firstname,
         lastname,
-        color: {
-          connect: {
-            id: colorId,
-          },
-        },
       },
     });
+
+    if (colorId) {
+      this.prismaService.player.update({
+        where: { id: player.id },
+        data: { color: { connect: { id: colorId } } },
+      });
+    }
+
     pubSub.publish(PlayerTopics.playerAdded, { playerAdded: player });
     return player;
   }
