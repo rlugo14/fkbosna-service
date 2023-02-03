@@ -73,7 +73,7 @@ export class PlayersResolver {
     });
 
     if (colorId) {
-      this.prismaService.player.update({
+      await this.prismaService.player.update({
         where: { id: player.id },
         data: { color: { connect: { id: colorId } } },
       });
