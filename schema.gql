@@ -59,6 +59,7 @@ type Mutation {
 input CreatePlayerInput {
   firstname: String!
   lastname: String!
+  fupaSlug: String
   colorId: Float
 }
 

@@ -12,6 +12,9 @@ export class CreatePlayerInput {
   lastname: string;
 
   @Field({ nullable: true })
+  fupaSlug?: string;
+
+  @Field({ nullable: true })
   colorId?: number;
 }
 

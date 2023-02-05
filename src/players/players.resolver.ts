@@ -64,15 +64,18 @@ export class PlayersResolver {
   async createPlayer(
     @Args('data') newPlayerInput: CreatePlayerInput,
   ): Promise<Player> {
-    const { firstname, lastname, colorId } = newPlayerInput;
+    const { firstname, lastname, fupaSlug } = newPlayerInput;
+
     const player = await this.prismaService.player.create({
       data: {
         firstname,
         lastname,
+        fupaSlug,
       },
     });
 
-    if (colorId) {
+    if (newPlayerInput.colorId) {
+      const colorId = newPlayerInput.colorId;
       await this.prismaService.player.update({
         where: { id: player.id },
         data: { color: { connect: { id: colorId } } },
