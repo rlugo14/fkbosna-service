@@ -119,25 +119,34 @@ export class PlayersResolver {
     @Args('data') updatePlayerInput: UpdatePlayerInput,
     @Args('where') whereUnique: PlayerWhereUniqueInput,
   ): Promise<Player> {
-    const { firstname, lastname, color, fupaSlug } = updatePlayerInput;
-    return this.prismaService.player.update({
+    const { firstname, lastname, fupaSlug } = updatePlayerInput;
+    let updatedPlayer = await this.prismaService.player.update({
       data: {
         firstname,
         lastname,
         fupaSlug,
-        color: {
-          connectOrCreate: {
-            where: { name: color.name },
-            create: {
-              name: color.name.toUpperCase(),
-              hexCode: color.hexCode.toUpperCase(),
-            },
-          },
-        },
       },
       where: whereUnique,
     });
+
+    if (updatePlayerInput.color) {
+      const color = updatePlayerInput.color;
+      updatedPlayer = await this.prismaService.player.update({
+        data: {
+          color: {
+            connectOrCreate: {
+              where: { name: color.name },
+              create: { name: color.name, hexCode: color.hexCode },
+            },
+          },
+        },
+        where: { id: updatedPlayer.id },
+      });
+    }
+
+    return updatedPlayer;
   }
+
   @UseGuards(AuthGuard)
   @Mutation(() => BatchResponse)
   async updateManyPlayers(
