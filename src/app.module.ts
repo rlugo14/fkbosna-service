@@ -8,10 +8,12 @@ import { IncomingMessage } from 'http';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { ApolloDriver } from '@nestjs/apollo';
 
 @Module({
   imports: [
     GraphQLModule.forRoot({
+      driver: ApolloDriver,
       installSubscriptionHandlers: true,
       autoSchemaFile: 'schema.gql',
       context: ({ req }: { req: IncomingMessage }) => ({
@@ -20,9 +22,9 @@ import { ConfigModule } from '@nestjs/config';
       cors: {
         credentials: true,
         origin: true,
-    },
+      },
     }),
-    
+
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     PlayersModule,

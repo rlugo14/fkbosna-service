@@ -19,7 +19,6 @@ import {
   CreateManyColorsInput,
 } from './dto/create-color.input';
 import { Color } from './models/color.model';
-import { PubSub } from 'apollo-server-express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { BatchResponse } from '../shared/dto/batch-response.model';
 import { DeleteManyColorsInput } from './dto/delete-color.input';
@@ -27,7 +26,6 @@ import { UpdateColorInput } from './dto/update-color.input';
 import { ResultArgs } from '../shared/dto/results.args';
 import { AuthGuard } from '../auth.guard';
 
-const pubSub = new PubSub();
 enum ColorTopics {
   colorAdded = 'colorAdded',
 }
@@ -64,7 +62,6 @@ export class ColorsResolver {
       const color = await this.prismaService.color.create({
         data: { ...newColorInput, name: newColorInput.name.toUpperCase() },
       });
-      pubSub.publish(ColorTopics.colorAdded, { colorAdded: color });
       return color;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -84,9 +81,6 @@ export class ColorsResolver {
           ...colorData,
           name: colorData.name.toUpperCase(),
         })),
-      });
-      pubSub.publish(ColorTopics.colorAdded, {
-        colorsAdded: createdColors,
       });
       return createdColors;
     } catch (error) {
@@ -137,11 +131,6 @@ export class ColorsResolver {
         hexCode: updateInput.hexCode?.toUpperCase(),
       },
     });
-  }
-
-  @Subscription(() => Color)
-  colorAdded() {
-    return pubSub.asyncIterator(ColorTopics.colorAdded);
   }
 
   @ResolveField()

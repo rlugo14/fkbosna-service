@@ -4,7 +4,6 @@ import {
   Query,
   Resolver,
   Mutation,
-  Subscription,
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
@@ -14,7 +13,6 @@ import {
   CreateManyPlayersInput,
 } from './dto/create-player.input';
 import { Player } from './models/player.model';
-import { PubSub } from 'apollo-server-express';
 import { BatchResponse } from '../shared/dto/batch-response.model';
 import {
   PlayersWhereInput,
@@ -24,11 +22,6 @@ import {
 import { Color } from '../colors/models/color.model';
 import { ResultArgs } from '../shared/dto/results.args';
 import { AuthGuard } from 'src/auth.guard';
-
-const pubSub = new PubSub();
-enum PlayerTopics {
-  playerAdded = 'playerAdded',
-}
 
 @Resolver(() => Player)
 export class PlayersResolver {
@@ -83,7 +76,6 @@ export class PlayersResolver {
       });
     }
 
-    pubSub.publish(PlayerTopics.playerAdded, { playerAdded: player });
     return player;
   }
 
@@ -96,9 +88,7 @@ export class PlayersResolver {
       const createdPlayers = await this.prismaService.player.createMany({
         data: newPlayersInput.data,
       });
-      pubSub.publish(PlayerTopics.playerAdded, {
-        playersAdded: createdPlayers,
-      });
+
       return createdPlayers;
     } catch {
       return { count: 0 };
@@ -171,10 +161,5 @@ export class PlayersResolver {
       data: { colorId: null },
       where: { OR: ids },
     });
-  }
-
-  @Subscription(() => Player)
-  playerAdded() {
-    return pubSub.asyncIterator(PlayerTopics.playerAdded);
   }
 }
