@@ -16,6 +16,9 @@ export class CreatePlayerInput {
 
   @Field({ nullable: true })
   colorId?: number;
+
+  @Field({ nullable: true })
+  imageUrl?: string;
 }
 
 @InputType()

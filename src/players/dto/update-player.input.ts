@@ -37,6 +37,9 @@ export class UpdatePlayerInput {
 
   @Field(() => CreateOrConnectColorInput, { nullable: true })
   color?: CreateOrConnectColorInput;
+
+  @Field({ nullable: true })
+  imageUrl?: string;
 }
 
 @InputType()

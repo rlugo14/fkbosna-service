@@ -19,12 +19,13 @@ model User {
 }
 
 model Player {
-    id        Int    @id @default(autoincrement())
+    id        Int     @id @default(autoincrement())
     firstname String
     lastname  String
-    color     Color? @relation(fields: [colorId], references: [id])
+    color     Color?  @relation(fields: [colorId], references: [id])
     colorId   Int?
-    fupaSlug  String @default("")
+    fupaSlug  String  @default("")
+    imageUrl  String?
 
     @@map(name: "players")
 }

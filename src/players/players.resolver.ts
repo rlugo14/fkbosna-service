@@ -64,13 +64,14 @@ export class PlayersResolver {
   async createPlayer(
     @Args('data') newPlayerInput: CreatePlayerInput,
   ): Promise<Player> {
-    const { firstname, lastname, fupaSlug } = newPlayerInput;
+    const { firstname, lastname, fupaSlug, imageUrl } = newPlayerInput;
 
     const player = await this.prismaService.player.create({
       data: {
         firstname,
         lastname,
         fupaSlug,
+        imageUrl,
       },
     });
 
@@ -119,12 +120,13 @@ export class PlayersResolver {
     @Args('data') updatePlayerInput: UpdatePlayerInput,
     @Args('where') whereUnique: PlayerWhereUniqueInput,
   ): Promise<Player> {
-    const { firstname, lastname, fupaSlug } = updatePlayerInput;
+    const { firstname, lastname, fupaSlug, imageUrl } = updatePlayerInput;
     let updatedPlayer = await this.prismaService.player.update({
       data: {
         firstname,
         lastname,
         fupaSlug,
+        imageUrl,
       },
       where: whereUnique,
     });
