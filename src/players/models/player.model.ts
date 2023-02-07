@@ -14,7 +14,10 @@ export class Player {
 
   @Field({ nullable: true })
   color?: Color;
-  
+
   @Field()
   fupaSlug?: string;
+
+  @Field({ nullable: true })
+  imageName?: string;
 }

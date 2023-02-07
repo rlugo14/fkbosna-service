@@ -39,7 +39,7 @@ export class UpdatePlayerInput {
   color?: CreateOrConnectColorInput;
 
   @Field({ nullable: true })
-  imageUrl?: string;
+  imageName?: string;
 }
 
 @InputType()

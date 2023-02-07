@@ -25,7 +25,7 @@ model Player {
     color     Color?  @relation(fields: [colorId], references: [id])
     colorId   Int?
     fupaSlug  String  @default("")
-    imageUrl  String?
+    imageName String?
 
     @@map(name: "players")
 }

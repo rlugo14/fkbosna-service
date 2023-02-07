@@ -15,6 +15,7 @@ type Player {
   lastname: String!
   color: Color
   fupaSlug: String!
+  imageName: String
 }
 
 type BatchResponse {
@@ -61,7 +62,7 @@ input CreatePlayerInput {
   lastname: String!
   fupaSlug: String
   colorId: Float
-  imageUrl: String
+  imageName: String
 }
 
 input CreateManyPlayersInput {
@@ -77,7 +78,7 @@ input UpdatePlayerInput {
   lastname: String
   fupaSlug: String
   color: CreateOrConnectColorInput
-  imageUrl: String
+  imageName: String
 }
 
 input CreateOrConnectColorInput {
