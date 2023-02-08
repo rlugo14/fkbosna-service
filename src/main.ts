@@ -7,7 +7,7 @@ async function bootstrap() {
   const port = process.env.PORT ? process.env.PORT : 3010;
 
   app.enableCors({
-    origin: new RegExp(`.*.${process.env.CORS_ALLOWED_HOST}`),
+    origin: ['http://fkbosna.club', /\.fkbosna\.club$/],
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
   });
