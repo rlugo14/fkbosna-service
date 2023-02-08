@@ -24,6 +24,7 @@ export class PlayerImageController {
     @Body('playerId', ParseIntPipe) playerId: number,
   ) {
     console.log(file.size);
+    console.log(file.mimetype);
     return this.playerImageService.create(file, playerId);
   }
 }
