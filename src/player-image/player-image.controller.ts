@@ -23,6 +23,7 @@ export class PlayerImageController {
     file: Express.Multer.File,
     @Body('playerId', ParseIntPipe) playerId: number,
   ) {
+    console.log(file.size);
     return this.playerImageService.create(file, playerId);
   }
 }
