@@ -3,14 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
   const port = process.env.PORT ? process.env.PORT : 3010;
 
-  app.enableCors({
-    origin: ['http://fkbosna.club', /\.fkbosna\.club$/],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-  });
   Logger.log(`Running on port ${port}`, 'NestApplication');
   await app.listen(port);
 }
