@@ -1,5 +1,7 @@
 import {
+  Body,
   Controller,
+  ParseIntPipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -19,7 +21,8 @@ export class PlayerImageController {
   async upload(
     @UploadedFile()
     file: Express.Multer.File,
+    @Body('playerId', ParseIntPipe) playerId: number,
   ) {
-    return this.playerImageService.create(file);
+    return this.playerImageService.create(file, playerId);
   }
 }

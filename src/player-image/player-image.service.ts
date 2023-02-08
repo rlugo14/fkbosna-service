@@ -9,7 +9,7 @@ export class PlayerImageService {
     private readonly s3: S3ManagerService,
   ) {}
 
-  async create(file: Express.Multer.File): Promise<any> {
+  async create(file: Express.Multer.File, playerId: number): Promise<any> {
     const putObjectResponse = await this.s3.putObject(file);
 
     const uploadedFileName = putObjectResponse.uploadedFileName;
@@ -18,7 +18,7 @@ export class PlayerImageService {
 
     return this.prismaService.player.update({
       data: { imageName: uploadedFileName },
-      where: { id: 5 },
+      where: { id: playerId },
       include: { color: true },
     });
   }
