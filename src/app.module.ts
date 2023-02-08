@@ -1,3 +1,4 @@
+import { AppConfigService } from './shared/services/app-config.service';
 import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module';
 import 'reflect-metadata';
@@ -9,6 +10,10 @@ import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ApolloDriver } from '@nestjs/apollo';
+import { SharedModule } from './shared/shared.module';
+import { AwsSdkModule } from 'nest-aws-sdk';
+import { S3 } from 'aws-sdk';
+import { PlayerImageModule } from './player-image/player-image.module';
 
 @Module({
   imports: [
@@ -24,13 +29,27 @@ import { ApolloDriver } from '@nestjs/apollo';
         origin: true,
       },
     }),
-
+    AwsSdkModule.forRootAsync({
+      defaultServiceOptions: {
+        useFactory: (configService: AppConfigService) => ({
+          region: configService.awsConfig.region,
+          credentials: {
+            accessKeyId: configService.awsConfig.keyId,
+            secretAccessKey: configService.awsConfig.secretKey,
+          },
+        }),
+        inject: [AppConfigService],
+      },
+      services: [S3],
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
     PrismaModule,
     PlayersModule,
     ColorsModule,
     UsersModule,
     AuthModule,
+    SharedModule,
+    PlayerImageModule,
   ],
   controllers: [],
   providers: [],

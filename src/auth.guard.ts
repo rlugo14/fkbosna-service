@@ -15,10 +15,22 @@ export class AuthGuard implements CanActivate {
     this.secret = this.configService.get<string>('JWT_SECRET');
   }
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const gqlContext: { authorization: string } =
-      GqlExecutionContext.create(context).getContext();
+    let bearerToken: string;
 
-    const bearerToken = gqlContext.authorization;
+    switch (context.getType().toLowerCase()) {
+      case 'http':
+        const headers: { authorization: string } = context
+          .switchToHttp()
+          .getRequest().headers;
+
+        bearerToken = headers.authorization;
+        break;
+      case 'graphql':
+        const gqlContext: { authorization: string } =
+          GqlExecutionContext.create(context).getContext();
+        bearerToken = gqlContext.authorization;
+        break;
+    }
 
     await this.validateBearerToken(bearerToken);
     return true;
