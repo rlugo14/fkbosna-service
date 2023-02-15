@@ -127,7 +127,7 @@ export class PlayersResolver {
         data: {
           color: {
             connectOrCreate: {
-              where: { name: color.name },
+              where: { hexCode: color.hexCode },
               create: { name: color.name, hexCode: color.hexCode },
             },
           },

@@ -9,7 +9,6 @@ import {
   Query,
   Resolver,
   Mutation,
-  Subscription,
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
@@ -22,13 +21,12 @@ import { Color } from './models/color.model';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { BatchResponse } from '../shared/dto/batch-response.model';
 import { DeleteManyColorsInput } from './dto/delete-color.input';
-import { UpdateColorInput } from './dto/update-color.input';
+import {
+  ColorWhereUniqueInput,
+  UpdateColorInput,
+} from './dto/update-color.input';
 import { ResultArgs } from '../shared/dto/results.args';
 import { AuthGuard } from '../auth.guard';
-
-enum ColorTopics {
-  colorAdded = 'colorAdded',
-}
 
 @Resolver(() => Color)
 export class ColorsResolver {
@@ -38,9 +36,10 @@ export class ColorsResolver {
   async color(
     @Args('id', { nullable: true }) id: number,
     @Args('name', { nullable: true }) name: string,
+    @Args('hexCode', { nullable: true }) hexCode: string,
   ): Promise<Color> {
     const color = await this.prismaService.color.findUnique({
-      where: { id, name },
+      where: { id, hexCode },
     });
     if (!color) {
       throw new NotFoundException(id);
@@ -123,9 +122,15 @@ export class ColorsResolver {
   @Mutation(() => Color)
   async updateColor(
     @Args('data') updateInput: UpdateColorInput,
+    @Args('where') whereUnique: ColorWhereUniqueInput,
   ): Promise<Color> {
+    if (whereUnique.id && whereUnique.hexCode)
+      // Prisma client only accepts one key in whereUnique
+      // id takes precedence if both present
+      whereUnique = { ...whereUnique, hexCode: undefined };
+
     return this.prismaService.color.update({
-      where: { name: updateInput.where.name },
+      where: whereUnique,
       data: {
         name: updateInput.name?.toUpperCase(),
         hexCode: updateInput.hexCode?.toUpperCase(),

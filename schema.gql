@@ -3,14 +3,14 @@
 # ------------------------------------------------------
 
 type Color {
-  id: ID!
+  id: Int!
   hexCode: String!
   name: String!
   players: [Player!]!
 }
 
 type Player {
-  id: ID!
+  id: Int!
   firstname: String!
   lastname: String!
   color: Color
@@ -36,7 +36,7 @@ type RegisteredUser {
 type Query {
   player(id: Float!): Player!
   players(skip: Int! = 0, take: Int! = 40): [Player!]!
-  color(id: Float, name: String): Color!
+  color(id: Float, name: String, hexCode: String): Color!
   colors(skip: Int! = 0, take: Int! = 40): [Color!]!
   me: User!
 }
@@ -52,7 +52,7 @@ type Mutation {
   createManyColors(colors: CreateManyColorsInput!): BatchResponse!
   deleteColor(id: Float!): Boolean!
   deleteManyColors(colors: DeleteManyColorsInput!): BatchResponse!
-  updateColor(data: UpdateColorInput!): Color!
+  updateColor(data: UpdateColorInput!, where: ColorWhereUniqueInput!): Color!
   login(email: String!, password: String!): String!
   register(email: String!, password: String!): RegisteredUser!
 }
@@ -108,10 +108,9 @@ input DeleteManyColorsInput {
 input UpdateColorInput {
   name: String
   hexCode: String
-  where: ColorWhereUniqueInput!
 }
 
 input ColorWhereUniqueInput {
-  name: String!
+  id: Float
   hexCode: String
 }
