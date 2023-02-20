@@ -5,8 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { GqlExecutionContext } from '@nestjs/graphql';
 import * as jwt from 'jsonwebtoken';
+import {
+  bearerTokenFromGraphql,
+  bearerTokenFromHttp,
+  isBearerToken,
+} from './helpers/extractBearerToken';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,16 +23,10 @@ export class AuthGuard implements CanActivate {
 
     switch (context.getType().toLowerCase()) {
       case 'http':
-        const headers: { authorization: string } = context
-          .switchToHttp()
-          .getRequest().headers;
-
-        bearerToken = headers.authorization;
+        bearerToken = bearerTokenFromHttp(context);
         break;
       case 'graphql':
-        const gqlContext: { authorization: string } =
-          GqlExecutionContext.create(context).getContext();
-        bearerToken = gqlContext.authorization;
+        bearerToken = bearerTokenFromGraphql(context);
         break;
     }
 
@@ -37,10 +35,7 @@ export class AuthGuard implements CanActivate {
   }
 
   async validateBearerToken(bearerToken: string) {
-    if (
-      !bearerToken ||
-      (bearerToken && bearerToken.split(' ')[0] !== 'Bearer')
-    ) {
+    if (!isBearerToken(bearerToken)) {
       throw new UnauthorizedException('Invalid Token');
     }
 

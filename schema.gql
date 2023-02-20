@@ -22,12 +22,6 @@ type BatchResponse {
   count: Float!
 }
 
-type User {
-  id: ID!
-  email: String!
-  password: String!
-}
-
 type RegisteredUser {
   id: ID!
   email: String!
@@ -38,7 +32,7 @@ type Query {
   players(skip: Int! = 0, take: Int! = 40): [Player!]!
   color(id: Float, name: String, hexCode: String): Color!
   colors(skip: Int! = 0, take: Int! = 40): [Color!]!
-  me: User!
+  me: Float!
 }
 
 type Mutation {

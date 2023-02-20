@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
+import { AuthUserId } from 'src/auth-user.decorator';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -60,8 +61,13 @@ export class UsersResolver {
     }
   }
 
-  @Query(() => User)
-  me(@Context('user') user: User): User {
-    return user;
+  @UseGuards(AuthGuard)
+  @Query(() => Number)
+  async me(@AuthUserId() userId: number): Promise<number> {
+    const foundUser = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    return foundUser.id;
   }
 }
