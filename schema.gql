@@ -7,6 +7,8 @@ type Color {
   hexCode: String!
   name: String!
   players: [Player!]!
+  tenant: Tenant!
+  tenantId: Float!
 }
 
 type Player {
@@ -16,10 +18,16 @@ type Player {
   color: Color
   fupaSlug: String!
   imageName: String
+  tenant: Tenant!
+  tenantId: Float!
 }
 
-type BatchResponse {
-  count: Float!
+type Tenant {
+  id: ID!
+  name: String!
+  slug: String!
+  players: [Player!]!
+  colors: [Color!]!
 }
 
 type RegisteredUser {
@@ -27,12 +35,16 @@ type RegisteredUser {
   email: String!
 }
 
+type BatchResponse {
+  count: Float!
+}
+
 type Query {
   player(id: Float!): Player!
   players(skip: Int! = 0, take: Int! = 40): [Player!]!
-  color(id: Float, name: String, hexCode: String): Color!
-  colors(skip: Int! = 0, take: Int! = 40): [Color!]!
   me: Float!
+  color(id: Float!): Color!
+  colors(skip: Int! = 0, take: Int! = 40): [Color!]!
 }
 
 type Mutation {
@@ -42,13 +54,13 @@ type Mutation {
   updatePlayer(data: UpdatePlayerInput!, where: PlayerWhereUniqueInput!): Player!
   updateManyPlayers(data: UpdatePlayerInput!, where: PlayersWhereInput!): BatchResponse!
   removePlayersColor(where: PlayersWhereInput!): BatchResponse!
+  login(email: String!, password: String!, tenantId: Float!): String!
+  register(email: String!, password: String!): RegisteredUser!
   createColor(data: CreateColorInput!): Color!
   createManyColors(colors: CreateManyColorsInput!): BatchResponse!
   deleteColor(id: Float!): Boolean!
   deleteManyColors(colors: DeleteManyColorsInput!): BatchResponse!
   updateColor(data: UpdateColorInput!, where: ColorWhereUniqueInput!): Color!
-  login(email: String!, password: String!): String!
-  register(email: String!, password: String!): RegisteredUser!
 }
 
 input CreatePlayerInput {
@@ -72,6 +84,7 @@ input UpdatePlayerInput {
 }
 
 input CreateOrConnectColorInput {
+  id: Float!
   hexCode: String!
   name: String!
 }
@@ -106,5 +119,4 @@ input UpdateColorInput {
 
 input ColorWhereUniqueInput {
   id: Float
-  hexCode: String
 }

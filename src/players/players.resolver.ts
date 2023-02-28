@@ -6,6 +6,7 @@ import {
   Mutation,
   ResolveField,
   Parent,
+  Context,
 } from '@nestjs/graphql';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -22,18 +23,28 @@ import {
 import { Color } from '../colors/models/color.model';
 import { ResultArgs } from '../shared/dto/results.args';
 import { AuthGuard } from 'src/auth.guard';
+import { GqlContext } from 'src/helpers/interfaces';
+import { Tenant } from 'src/tenants/models/tenant.model';
+import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
+import { AuthUserId } from 'src/auth-user.decorator';
+import { UserService } from 'src/users/users.service';
+import { PlayerService } from './players.service';
 
 @Resolver(() => Player)
 export class PlayersResolver {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly playerService: PlayerService,
+    private readonly userService: UserService,
+  ) {}
 
   @Query(() => Player)
-  async player(@Args('id') id: number): Promise<Player> {
-    const player = await this.prismaService.player.findUnique({
-      where: { id },
-      include: { color: false },
-    });
-    if (!player) {
+  async player(
+    @Args('id') id: number,
+    @TenantId(TenantIdFrom.headers) tenantId: number,
+  ): Promise<Player> {
+    const player = await this.playerService.fetchUnique(id);
+    if (!player || player.tenantId !== tenantId) {
       throw new NotFoundException(id);
     }
     return player;
@@ -44,18 +55,36 @@ export class PlayersResolver {
     const { id } = player;
     return this.prismaService.color.findFirst({
       where: { players: { some: { id } } },
+      include: { tenant: true },
+    });
+  }
+
+  @ResolveField(() => Tenant)
+  async tenant(@Parent() player: Player): Promise<Tenant> {
+    const { id } = player;
+    return this.prismaService.tenant.findFirst({
+      where: { players: { some: { id } } },
     });
   }
 
   @Query(() => [Player])
-  players(@Args() playersArgs: ResultArgs): Promise<Player[]> {
-    return this.prismaService.player.findMany(playersArgs);
+  players(
+    @Args() playersArgs: ResultArgs,
+    @Context() ctx: GqlContext,
+    @TenantId(TenantIdFrom.headers) tenantId: number,
+  ): Promise<Player[]> {
+    return this.prismaService.player.findMany({
+      ...playersArgs,
+      where: { tenantId },
+      include: { tenant: true },
+    });
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => Player)
   async createPlayer(
     @Args('data') newPlayerInput: CreatePlayerInput,
+    @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<Player> {
     const { firstname, lastname, fupaSlug, imageName } = newPlayerInput;
 
@@ -65,7 +94,9 @@ export class PlayersResolver {
         lastname,
         fupaSlug,
         imageName,
+        tenantId,
       },
+      include: { tenant: true },
     });
 
     if (newPlayerInput.colorId) {
@@ -83,10 +114,11 @@ export class PlayersResolver {
   @Mutation(() => BatchResponse)
   async createManyPlayers(
     @Args('players') newPlayersInput: CreateManyPlayersInput,
+    @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<BatchResponse> {
     try {
       const createdPlayers = await this.prismaService.player.createMany({
-        data: newPlayersInput.data,
+        data: { ...newPlayersInput.data, tenantId },
       });
 
       return createdPlayers;
@@ -96,8 +128,9 @@ export class PlayersResolver {
   }
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
-  async deletePlayer(@Args('id') id: number) {
+  async deletePlayer(@Args('id') id: number, @AuthUserId() userId: number) {
     try {
+      await this.playerService.verifyUserCanManagePlayer(userId, id);
       await this.prismaService.player.delete({ where: { id } });
       return true;
     } catch (error) {
@@ -109,8 +142,11 @@ export class PlayersResolver {
   async updatePlayer(
     @Args('data') updatePlayerInput: UpdatePlayerInput,
     @Args('where') whereUnique: PlayerWhereUniqueInput,
+    @AuthUserId() userId: number,
   ): Promise<Player> {
     const { firstname, lastname, fupaSlug, imageName } = updatePlayerInput;
+
+    await this.playerService.verifyUserCanManagePlayer(userId, whereUnique.id);
     let updatedPlayer = await this.prismaService.player.update({
       data: {
         firstname,
@@ -119,6 +155,7 @@ export class PlayersResolver {
         imageName,
       },
       where: whereUnique,
+      include: { tenant: true },
     });
 
     if (updatePlayerInput.color) {
@@ -127,12 +164,13 @@ export class PlayersResolver {
         data: {
           color: {
             connectOrCreate: {
-              where: { hexCode: color.hexCode },
+              where: { id: color.id },
               create: { name: color.name, hexCode: color.hexCode },
             },
           },
         },
         where: { id: updatedPlayer.id },
+        include: { tenant: true },
       });
     }
 
@@ -144,7 +182,12 @@ export class PlayersResolver {
   async updateManyPlayers(
     @Args('data') updatePlayerInput: UpdatePlayerInput,
     @Args('where') whereUnique: PlayersWhereInput,
+    @AuthUserId() userId: number,
   ): Promise<BatchResponse> {
+    whereUnique.ids.forEach(
+      async (id) =>
+        await this.playerService.verifyUserCanManagePlayer(userId, id),
+    );
     return this.prismaService.player.updateMany({
       where: { id: { in: whereUnique.ids }, colorId: whereUnique.colorId },
       data: updatePlayerInput,
@@ -155,8 +198,14 @@ export class PlayersResolver {
   @Mutation(() => BatchResponse)
   async removePlayersColor(
     @Args('where') whereUnique: PlayersWhereInput,
+    @AuthUserId() userId: number,
   ): Promise<BatchResponse> {
+    whereUnique.ids.forEach(
+      async (id) =>
+        await this.playerService.verifyUserCanManagePlayer(userId, id),
+    );
     const ids = whereUnique.ids.map((id) => ({ id }));
+
     return this.prismaService.player.updateMany({
       data: { colorId: null },
       where: { OR: ids },

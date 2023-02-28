@@ -18,6 +18,9 @@ export class PlayersWhereInput {
 @InputType()
 export class CreateOrConnectColorInput {
   @Field()
+  id: number;
+
+  @Field()
   hexCode: string;
 
   @Field()

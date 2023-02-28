@@ -6,7 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { PlayersModule } from './players/players.module';
 import { ColorsModule } from './colors/colors.module';
 import { IncomingMessage } from 'http';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { ApolloDriver } from '@nestjs/apollo';
@@ -46,7 +46,7 @@ import { PlayerImageModule } from './player-image/player-image.module';
     PrismaModule,
     PlayersModule,
     ColorsModule,
-    UsersModule,
+    UserModule,
     AuthModule,
     SharedModule,
     PlayerImageModule,

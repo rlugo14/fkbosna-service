@@ -24,10 +24,14 @@ export class UsersResolver {
   async login(
     @Args('email') email: string,
     @Args('password') password: string,
+    @Args('tenantId') tenantId: number,
   ) {
-    const user = await this.prismaService.user.findUnique({ where: { email } });
+    const user = await this.prismaService.user.findUnique({
+      where: { email },
+      include: { tenant: true },
+    });
 
-    if (!user) {
+    if (!user || user.tenantId !== tenantId) {
       throw new UnauthorizedException();
     }
 
@@ -37,7 +41,11 @@ export class UsersResolver {
       throw new UnauthorizedException();
     }
 
-    return this.authService.createToken(user);
+    return this.authService.createToken({
+      userId: user.id,
+      email: user.email,
+      tenantId,
+    });
   }
   @UseGuards(AuthGuard)
   @Mutation(() => RegisteredUser)

@@ -1,3 +1,4 @@
+import { GqlContext } from './interfaces';
 import { ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 
@@ -11,10 +12,18 @@ export const bearerTokenFromHttp = (context: ExecutionContext) => {
 };
 
 export const bearerTokenFromGraphql = (context: ExecutionContext) => {
-  const gqlContext: { authorization: string } =
-    GqlExecutionContext.create(context).getContext();
+  const gqlContext = contextToGqlContext(context);
   const bearerToken = gqlContext.authorization;
   return bearerToken;
+};
+
+export const contextToGqlContext = (context: ExecutionContext): GqlContext =>
+  GqlExecutionContext.create(context).getContext();
+
+export const tokenFromBearer = (
+  bearerToken: string | undefined,
+): string | undefined => {
+  return isBearerToken(bearerToken) ? bearerToken.split(' ')[1] : undefined;
 };
 
 export const isBearerToken = (bearerToken: string | undefined) =>

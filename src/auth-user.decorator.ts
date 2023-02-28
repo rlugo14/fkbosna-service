@@ -17,7 +17,7 @@ export function AuthUserId() {
       if (isBearerToken(bearerToken)) {
         const token = bearerToken.split(' ')[1];
         const decodedToken = jwtService.decode(token) as TokenPayload;
-        return decodedToken.id;
+        return decodedToken.userId;
       }
     },
   )();

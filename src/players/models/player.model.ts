@@ -1,5 +1,6 @@
 import { Field, ID, Int, ObjectType } from '@nestjs/graphql';
 import { Color } from '../../colors/models/color.model';
+import { Tenant } from 'src/tenants/models/tenant.model';
 
 @ObjectType()
 export class Player {
@@ -12,7 +13,7 @@ export class Player {
   @Field()
   lastname: string;
 
-  @Field({ nullable: true })
+  @Field(() => Color, { nullable: true })
   color?: Color;
 
   @Field()
@@ -20,4 +21,10 @@ export class Player {
 
   @Field({ nullable: true })
   imageName?: string;
+
+  @Field(() => Tenant)
+  tenant: Tenant;
+
+  @Field()
+  tenantId: number;
 }

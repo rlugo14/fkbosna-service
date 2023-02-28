@@ -11,9 +11,11 @@ generator client {
 }
 
 model User {
-    id       Int    @id @default(autoincrement())
-    email    String @unique
+    id       Int     @id @default(autoincrement())
+    email    String  @unique
     password String
+    tenant   Tenant? @relation(fields: [tenantId], references: [id])
+    tenantId Int?
 
     @@map(name: "users")
 }
@@ -26,15 +28,30 @@ model Player {
     colorId   Int?
     fupaSlug  String  @default("")
     imageName String?
+    tenant    Tenant? @relation(fields: [tenantId], references: [id])
+    tenantId  Int?
 
     @@map(name: "players")
 }
 
 model Color {
-    id      Int      @id @default(autoincrement())
-    players Player[]
-    name    String
-    hexCode String   @unique
+    id       Int      @id @default(autoincrement())
+    players  Player[]
+    name     String
+    hexCode  String
+    tenant   Tenant?  @relation(fields: [tenantId], references: [id])
+    tenantId Int?
 
     @@map(name: "colors")
+}
+
+model Tenant {
+    id      Int      @id @default(autoincrement())
+    slug    String   @unique
+    name    String
+    users   User[]
+    players Player[]
+    colors  Color[]
+
+    @@map(name: "tenants")
 }

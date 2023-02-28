@@ -4,14 +4,11 @@ import { Prisma } from '@prisma/client';
 @InputType()
 export class ColorWhereUniqueInput {
   @Field({ nullable: true })
-  id?: number;
-
-  @Field({ nullable: true })
-  hexCode?: string;
+  id: number;
 }
 
 @InputType()
-export class UpdateColorInput implements Prisma.ColorWhereUniqueInput {
+export class UpdateColorInput {
   @Field({ nullable: true })
   name?: string;
 

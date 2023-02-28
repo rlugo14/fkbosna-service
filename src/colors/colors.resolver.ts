@@ -1,3 +1,4 @@
+import { ColorService } from './colors.service';
 import {
   HttpException,
   HttpStatus,
@@ -27,39 +28,54 @@ import {
 } from './dto/update-color.input';
 import { ResultArgs } from '../shared/dto/results.args';
 import { AuthGuard } from '../auth.guard';
+import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
+import { AuthUserId } from 'src/auth-user.decorator';
 
 @Resolver(() => Color)
 export class ColorsResolver {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly colorService: ColorService,
+  ) {}
 
   @Query(() => Color)
   async color(
-    @Args('id', { nullable: true }) id: number,
-    @Args('name', { nullable: true }) name: string,
-    @Args('hexCode', { nullable: true }) hexCode: string,
+    @Args('id') id: number,
+    @TenantId(TenantIdFrom.headers) tenantId: number,
   ): Promise<Color> {
-    const color = await this.prismaService.color.findUnique({
-      where: { id, hexCode },
-    });
-    if (!color) {
+    const color = await this.colorService.fetchUnique(id);
+    if (!color || color.tenantId !== tenantId) {
       throw new NotFoundException(id);
     }
     return color;
   }
 
   @Query(() => [Color])
-  async colors(@Args() resultArgs: ResultArgs): Promise<Color[]> {
-    return this.prismaService.color.findMany(resultArgs);
+  async colors(
+    @Args() resultArgs: ResultArgs,
+    @TenantId(TenantIdFrom.headers) tenantId: number,
+  ): Promise<Color[]> {
+    return this.prismaService.color.findMany({
+      ...resultArgs,
+      where: { tenantId },
+      include: { tenant: true },
+    });
   }
 
   @UseGuards(AuthGuard)
   @Mutation(() => Color)
   async createColor(
     @Args('data') newColorInput: CreateColorInput,
+    @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<Color> {
     try {
       const color = await this.prismaService.color.create({
-        data: { ...newColorInput, name: newColorInput.name.toUpperCase() },
+        data: {
+          ...newColorInput,
+          name: newColorInput.name.toUpperCase(),
+          tenantId,
+        },
+        include: { tenant: true },
       });
       return color;
     } catch (error) {
@@ -73,13 +89,17 @@ export class ColorsResolver {
   @Mutation(() => BatchResponse)
   async createManyColors(
     @Args('colors') newColorsInput: CreateManyColorsInput,
+    @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<BatchResponse> {
     try {
       const createdColors = await this.prismaService.color.createMany({
-        data: newColorsInput.data.map((colorData) => ({
-          ...colorData,
-          name: colorData.name.toUpperCase(),
-        })),
+        data: {
+          ...newColorsInput.data.map((colorData) => ({
+            ...colorData,
+            name: colorData.name.toUpperCase(),
+          })),
+          tenantId,
+        },
       });
       return createdColors;
     } catch (error) {
@@ -91,8 +111,9 @@ export class ColorsResolver {
 
   @UseGuards(AuthGuard)
   @Mutation(() => Boolean)
-  async deleteColor(@Args('id') id: number) {
+  async deleteColor(@Args('id') id: number, @AuthUserId() userId: number) {
     try {
+      await this.colorService.verifyUserCanManageColor(userId, id);
       await this.prismaService.color.delete({
         where: { id },
       });
@@ -101,11 +122,16 @@ export class ColorsResolver {
       return false;
     }
   }
+
   @UseGuards(AuthGuard)
   @Mutation(() => BatchResponse)
   async deleteManyColors(
     @Args('colors') deleteManyInput: DeleteManyColorsInput,
+    @AuthUserId() userId: number,
   ): Promise<BatchResponse> {
+    deleteManyInput.ids.forEach(async (id) => {
+      await this.colorService.verifyUserCanManageColor(userId, id);
+    });
     await this.prismaService.player.updateMany({
       data: { colorId: null },
       where: { colorId: { in: deleteManyInput.ids } },
@@ -123,18 +149,16 @@ export class ColorsResolver {
   async updateColor(
     @Args('data') updateInput: UpdateColorInput,
     @Args('where') whereUnique: ColorWhereUniqueInput,
+    @AuthUserId() userId: number,
   ): Promise<Color> {
-    if (whereUnique.id && whereUnique.hexCode)
-      // Prisma client only accepts one key in whereUnique
-      // id takes precedence if both present
-      whereUnique = { ...whereUnique, hexCode: undefined };
-
+    await this.colorService.verifyUserCanManageColor(userId, whereUnique.id);
     return this.prismaService.color.update({
       where: whereUnique,
       data: {
         name: updateInput.name?.toUpperCase(),
         hexCode: updateInput.hexCode?.toUpperCase(),
       },
+      include: { tenant: true },
     });
   }
 
