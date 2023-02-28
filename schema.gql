@@ -45,6 +45,8 @@ type Query {
   me: Float!
   color(id: Float!): Color!
   colors(skip: Int! = 0, take: Int! = 40): [Color!]!
+  tenants(skip: Int! = 0, take: Int! = 40): [Tenant!]!
+  tenant(slug: String!): Tenant!
 }
 
 type Mutation {
