@@ -144,35 +144,21 @@ export class PlayersResolver {
     @Args('where') whereUnique: PlayerWhereUniqueInput,
     @AuthUserId() userId: number,
   ): Promise<Player> {
-    const { firstname, lastname, fupaSlug, imageName } = updatePlayerInput;
+    const { firstname, lastname, fupaSlug, imageName, colorId } =
+      updatePlayerInput;
 
     await this.playerService.verifyUserCanManagePlayer(userId, whereUnique.id);
-    let updatedPlayer = await this.prismaService.player.update({
+    const updatedPlayer = await this.prismaService.player.update({
       data: {
         firstname,
         lastname,
         fupaSlug,
         imageName,
+        colorId,
       },
       where: whereUnique,
       include: { tenant: true },
     });
-
-    if (updatePlayerInput.color) {
-      const color = updatePlayerInput.color;
-      updatedPlayer = await this.prismaService.player.update({
-        data: {
-          color: {
-            connectOrCreate: {
-              where: { id: color.id },
-              create: { name: color.name, hexCode: color.hexCode },
-            },
-          },
-        },
-        where: { id: updatedPlayer.id },
-        include: { tenant: true },
-      });
-    }
 
     return updatedPlayer;
   }

@@ -81,14 +81,8 @@ input UpdatePlayerInput {
   firstname: String
   lastname: String
   fupaSlug: String
-  color: CreateOrConnectColorInput
+  colorId: Float
   imageName: String
-}
-
-input CreateOrConnectColorInput {
-  id: Float!
-  hexCode: String!
-  name: String!
 }
 
 input PlayerWhereUniqueInput {

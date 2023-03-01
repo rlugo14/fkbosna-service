@@ -38,8 +38,8 @@ export class UpdatePlayerInput {
   @Field({ nullable: true })
   fupaSlug?: string;
 
-  @Field(() => CreateOrConnectColorInput, { nullable: true })
-  color?: CreateOrConnectColorInput;
+  @Field({ nullable: true })
+  colorId?: number;
 
   @Field({ nullable: true })
   imageName?: string;
