@@ -56,7 +56,7 @@ type Mutation {
   updatePlayer(data: UpdatePlayerInput!, where: PlayerWhereUniqueInput!): Player!
   updateManyPlayers(data: UpdatePlayerInput!, where: PlayersWhereInput!): BatchResponse!
   removePlayersColor(where: PlayersWhereInput!): BatchResponse!
-  login(email: String!, password: String!, tenantId: Float!): String!
+  login(email: String!, password: String!): String!
   register(email: String!, password: String!): RegisteredUser!
   createColor(data: CreateColorInput!): Color!
   createManyColors(colors: CreateManyColorsInput!): BatchResponse!

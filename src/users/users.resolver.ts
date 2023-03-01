@@ -12,6 +12,7 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
 import { AuthUserId } from 'src/auth-user.decorator';
+import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -24,7 +25,7 @@ export class UsersResolver {
   async login(
     @Args('email') email: string,
     @Args('password') password: string,
-    @Args('tenantId') tenantId: number,
+    @TenantId(TenantIdFrom.headers) tenantId: number,
   ) {
     const user = await this.prismaService.user.findUnique({
       where: { email },
