@@ -17,9 +17,12 @@ export class S3ManagerService {
     return response.Contents.map((c) => c.Key);
   }
 
-  async putObject(file: Express.Multer.File) {
+  async putObject(file: Express.Multer.File, tenantSlug: string) {
     const bucket = this.configService.awsConfig.bucketName;
-    const folderName = this.configService.awsConfig.bucketFolderName;
+    // const folderName = this.configService.appConfig.isDev
+    //   ? 'development'
+    //   : tenantSlug;
+    const folderName = tenantSlug;
     const fileExtension = extractFileExtension(file.mimetype);
     const fileName = `${uuid()}.${fileExtension}`;
     const fileKey = `${folderName}/${fileName}`;

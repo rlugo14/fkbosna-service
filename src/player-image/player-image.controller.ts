@@ -22,7 +22,8 @@ export class PlayerImageController {
     @UploadedFile()
     file: Express.Multer.File,
     @Body('playerId', ParseIntPipe) playerId: number,
+    @Body('tenantSlug') tenantSlug: string,
   ) {
-    return this.playerImageService.create(file, playerId);
+    return this.playerImageService.create(file, playerId, tenantSlug);
   }
 }

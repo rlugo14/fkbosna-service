@@ -23,6 +23,22 @@ export class AppConfigService {
     };
   }
 
+  get appConfig() {
+    return {
+      nodeEnv: this.getEnvironment(),
+      isDev: this.isDev(),
+      isProd: this.isProd(),
+    };
+  }
+
+  private isDev(): boolean {
+    return this.getEnvironment() === 'DEV';
+  }
+
+  private isProd(): boolean {
+    return this.getEnvironment() === 'PROD';
+  }
+
   private getEnvironment(): 'DEV' | 'PROD' {
     const env = this.get('NODE_ENV');
 

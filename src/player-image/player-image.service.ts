@@ -9,8 +9,12 @@ export class PlayerImageService {
     private readonly s3: S3ManagerService,
   ) {}
 
-  async create(file: Express.Multer.File, playerId: number): Promise<any> {
-    const putObjectResponse = await this.s3.putObject(file);
+  async create(
+    file: Express.Multer.File,
+    playerId: number,
+    tenantSlug: string,
+  ): Promise<any> {
+    const putObjectResponse = await this.s3.putObject(file, tenantSlug);
 
     const uploadedFileName = putObjectResponse.uploadedFileName;
 
