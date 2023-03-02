@@ -23,6 +23,7 @@ import { TenantsModule } from './tenants/tenants.module';
       installSubscriptionHandlers: true,
       autoSchemaFile: 'schema.gql',
       context: ({ req }: { req: IncomingMessage }) => ({
+        ...req,
         authorization: req.headers.authorization,
       }),
       cors: true,
