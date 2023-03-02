@@ -27,7 +27,10 @@ import { TenantsModule } from './tenants/tenants.module';
       }),
       cors: {
         credentials: true,
-        origin: true,
+        origin: 'https://rmcf.matdienst.de',
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+        allowedHeaders:
+          'Content-Type,Accept,Authorization,Access-Control-Allow-Origin',
       },
     }),
     AwsSdkModule.forRootAsync({
