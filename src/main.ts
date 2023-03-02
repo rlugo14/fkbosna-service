@@ -7,11 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   app.enableCors({
-    credentials: true,
-    origin: 'https://rmcf.matdienst.de',
+    origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders:
-      'Content-Type,Accept,Authorization,Access-Control-Allow-Origin',
+    credentials: true,
   });
 
   const port = process.env.PORT ? process.env.PORT : 3010;
