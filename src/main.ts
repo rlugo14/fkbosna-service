@@ -5,7 +5,10 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    cors: true,
+    cors: {
+      credentials: true,
+      origin: true,
+    },
   });
 
   const port = process.env.PORT ? process.env.PORT : 3010;
