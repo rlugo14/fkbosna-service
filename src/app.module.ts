@@ -25,10 +25,7 @@ import { TenantsModule } from './tenants/tenants.module';
       context: ({ req }: { req: IncomingMessage }) => ({
         authorization: req.headers.authorization,
       }),
-      cors: {
-        credentials: true,
-        origin: '*',
-      },
+      cors: true,
     }),
     AwsSdkModule.forRootAsync({
       defaultServiceOptions: {
