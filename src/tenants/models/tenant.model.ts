@@ -13,6 +13,12 @@ export class Tenant {
   @Field()
   slug: string;
 
+  @Field()
+  fupaSlug: string;
+
+  @Field({ nullable: true })
+  imageName?: string;
+
   @Field(() => [Player])
   players?: Player[];
 

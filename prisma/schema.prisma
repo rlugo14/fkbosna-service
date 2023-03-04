@@ -46,12 +46,14 @@ model Color {
 }
 
 model Tenant {
-    id      Int      @id @default(autoincrement())
-    slug    String   @unique
-    name    String
-    users   User[]
-    players Player[]
-    colors  Color[]
+    id        Int      @id @default(autoincrement())
+    slug      String   @unique
+    name      String
+    users     User[]
+    players   Player[]
+    colors    Color[]
+    fupaSlug  String   @default("")
+    imageName String?
 
     @@map(name: "tenants")
 }

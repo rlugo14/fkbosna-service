@@ -26,6 +26,8 @@ type Tenant {
   id: ID!
   name: String!
   slug: String!
+  fupaSlug: String!
+  imageName: String
   players: [Player!]!
   colors: [Color!]!
 }
