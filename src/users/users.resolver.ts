@@ -1,10 +1,12 @@
 import {
   HttpException,
   HttpStatus,
+  Inject,
   UnauthorizedException,
   UseGuards,
+  forwardRef,
 } from '@nestjs/common';
-import { Args, Context, Mutation, Resolver, Query } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisteredUser, User } from './models/users.model';
 import * as bcrypt from 'bcrypt';
@@ -13,12 +15,15 @@ import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
 import { AuthUserId } from 'src/auth-user.decorator';
 import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
+import { TenantService } from 'src/tenants/tenants.service';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly authService: AuthService,
+    @Inject(forwardRef(() => TenantService))
+    private tenantService: TenantService,
   ) {}
 
   @Mutation(() => String)
@@ -48,17 +53,20 @@ export class UsersResolver {
       tenantId,
     });
   }
-  @UseGuards(AuthGuard)
+
   @Mutation(() => RegisteredUser)
   async register(
     @Args('email') email: string,
     @Args('password') password: string,
+    @TenantId(TenantIdFrom.headers) tenantId: number,
   ): Promise<RegisteredUser> {
+    await this.tenantService.fetchUniqueById(tenantId);
+
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
     try {
       const user = await this.prismaService.user.create({
-        data: { email, password: hash },
+        data: { email, password: hash, tenantId },
         select: { id: true, email: true },
       });
 

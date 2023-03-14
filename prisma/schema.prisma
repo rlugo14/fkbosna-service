@@ -54,6 +54,7 @@ model Tenant {
     colors    Color[]
     fupaSlug  String   @default("")
     imageName String?
+    active    Boolean  @default(true)
 
     @@map(name: "tenants")
 }

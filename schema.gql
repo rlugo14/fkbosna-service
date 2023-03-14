@@ -33,7 +33,7 @@ type Tenant {
 }
 
 type RegisteredUser {
-  id: ID!
+  id: Float!
   email: String!
 }
 
@@ -45,10 +45,10 @@ type Query {
   player(id: Float!): Player!
   players(skip: Int! = 0, take: Int! = 40): [Player!]!
   me: Float!
-  color(id: Float!): Color!
-  colors(skip: Int! = 0, take: Int! = 40): [Color!]!
   tenants(skip: Int! = 0, take: Int! = 40): [Tenant!]!
   tenant(slug: String!): Tenant!
+  color(id: Float!): Color!
+  colors(skip: Int! = 0, take: Int! = 40): [Color!]!
 }
 
 type Mutation {
@@ -60,6 +60,8 @@ type Mutation {
   removePlayersColor(where: PlayersWhereInput!): BatchResponse!
   login(email: String!, password: String!): String!
   register(email: String!, password: String!): RegisteredUser!
+  createTenant(tenant: CreateTenantInput!): Tenant!
+  updateTenant(data: UpdateTenantInput!, where: TenantWhereUniqueInput!): Tenant!
   createColor(data: CreateColorInput!): Color!
   createManyColors(colors: CreateManyColorsInput!): BatchResponse!
   deleteColor(id: Float!): Boolean!
@@ -94,6 +96,26 @@ input PlayerWhereUniqueInput {
 input PlayersWhereInput {
   ids: [Int!]
   colorId: Int
+}
+
+input CreateTenantInput {
+  name: String!
+  slug: String!
+  fupaSlug: String
+  imageName: String
+  active: Boolean! = true
+}
+
+input UpdateTenantInput {
+  name: String
+  slug: String
+  fupaSlug: String
+  imageName: String
+  active: Boolean
+}
+
+input TenantWhereUniqueInput {
+  id: Float!
 }
 
 input CreateColorInput {

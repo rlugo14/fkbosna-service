@@ -23,7 +23,7 @@ export class User {
 
 @ObjectType()
 export class RegisteredUser {
-  @Field(() => ID)
+  @Field()
   id: number;
 
   @Field()

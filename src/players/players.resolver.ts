@@ -6,7 +6,6 @@ import {
   Mutation,
   ResolveField,
   Parent,
-  Context,
 } from '@nestjs/graphql';
 import { PrismaService } from '../prisma/prisma.service';
 import {
@@ -23,11 +22,9 @@ import {
 import { Color } from '../colors/models/color.model';
 import { ResultArgs } from '../shared/dto/results.args';
 import { AuthGuard } from 'src/auth.guard';
-import { GqlContext } from 'src/helpers/interfaces';
 import { Tenant } from 'src/tenants/models/tenant.model';
 import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
 import { AuthUserId } from 'src/auth-user.decorator';
-import { UserService } from 'src/users/users.service';
 import { PlayerService } from './players.service';
 
 @Resolver(() => Player)
@@ -35,7 +32,6 @@ export class PlayersResolver {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly playerService: PlayerService,
-    private readonly userService: UserService,
   ) {}
 
   @Query(() => Player)
@@ -70,7 +66,6 @@ export class PlayersResolver {
   @Query(() => [Player])
   players(
     @Args() playersArgs: ResultArgs,
-    @Context() ctx: GqlContext,
     @TenantId(TenantIdFrom.headers) tenantId: number,
   ): Promise<Player[]> {
     return this.prismaService.player.findMany({
