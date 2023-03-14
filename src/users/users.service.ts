@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -16,5 +20,15 @@ export class UserService {
     }
 
     return foundPlayer;
+  }
+
+  async verifyEmailIsAvailable(email: string) {
+    const foundTenant = await this.prismaService.user.findUnique({
+      where: { email },
+    });
+
+    if (foundTenant) {
+      throw new BadRequestException(`Email: '${email}' is not available`);
+    }
   }
 }

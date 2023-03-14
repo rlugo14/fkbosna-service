@@ -3,7 +3,11 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Tenant } from './models/tenant.model';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ResultArgs } from 'src/shared/dto/results.args';
-import { NotFoundException, UseGuards } from '@nestjs/common';
+import {
+  BadRequestException,
+  NotFoundException,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from 'src/auth.guard';
 import {
   TenantWhereUniqueInput,
@@ -70,5 +74,15 @@ export class TenantsResolver {
     });
 
     return updatedTenant;
+  }
+
+  @Query(() => Boolean)
+  async isTenantSlugAvailable(@Args('slug') slug: string): Promise<boolean> {
+    try {
+      await this.tenantService.verifySlugIsAvailable(slug);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }

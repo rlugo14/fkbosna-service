@@ -16,6 +16,7 @@ import { AuthGuard } from 'src/auth.guard';
 import { AuthUserId } from 'src/auth-user.decorator';
 import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
 import { TenantService } from 'src/tenants/tenants.service';
+import { UserService } from './users.service';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -24,6 +25,7 @@ export class UsersResolver {
     private readonly authService: AuthService,
     @Inject(forwardRef(() => TenantService))
     private tenantService: TenantService,
+    private readonly userService: UserService,
   ) {}
 
   @Mutation(() => String)
@@ -86,5 +88,15 @@ export class UsersResolver {
     });
 
     return foundUser.id;
+  }
+
+  @Query(() => Boolean)
+  async isUserEmailAvailable(@Args('email') email: string): Promise<boolean> {
+    try {
+      await this.userService.verifyEmailIsAvailable(email);
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 }
