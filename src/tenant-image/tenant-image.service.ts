@@ -1,10 +1,10 @@
+import { Tenant } from 'src/tenants/models/tenant.model';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { Color, Player } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { S3ManagerService } from 'src/s3-manager/s3-manager.service';
 
 @Injectable()
-export class PlayerImageService {
+export class TenantImageService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly s3: S3ManagerService,
@@ -12,19 +12,18 @@ export class PlayerImageService {
 
   async create(
     file: Express.Multer.File,
-    playerId: number,
+    tenantId: number,
     tenantSlug: string,
-  ): Promise<Player & { color: Color }> {
+  ): Promise<Tenant> {
     const putObjectResponse = await this.s3.putObject(file, tenantSlug);
 
     const uploadedFileName = putObjectResponse.uploadedFileName;
 
     if (!uploadedFileName) throw new BadRequestException();
 
-    return this.prismaService.player.update({
+    return this.prismaService.tenant.update({
       data: { imageName: uploadedFileName },
-      where: { id: playerId },
-      include: { color: true },
+      where: { id: tenantId },
     });
   }
 }

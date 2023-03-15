@@ -15,6 +15,7 @@ import { AwsSdkModule } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 import { PlayerImageModule } from './player-image/player-image.module';
 import { TenantsModule } from './tenants/tenants.module';
+import { TenantImageModule } from './tenant-image/tenant-image.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { TenantsModule } from './tenants/tenants.module';
     SharedModule,
     PlayerImageModule,
     TenantsModule,
+    TenantImageModule,
   ],
   controllers: [],
   providers: [],
