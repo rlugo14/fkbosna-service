@@ -19,7 +19,7 @@ import {
   CreateManyColorsInput,
 } from './dto/create-color.input';
 import { Color } from './models/color.model';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { BatchResponse } from '../shared/dto/batch-response.model';
 import { DeleteManyColorsInput } from './dto/delete-color.input';
 import {

@@ -11,14 +11,12 @@ export class AppConfigService {
     const secretKey = this.getString('AWS_SECRET_ACCESS_KEY');
     const region = this.getString('AWS_REGION');
     const bucketName = this.getString('BUCKET_NAME');
-    const bucketFolderName = this.getString('BUCKET_FOLDER_NAME');
 
     return {
       keyId,
       secretKey,
       region,
       bucketName,
-      bucketFolderName,
       bucketBaseUrl: `https://${bucketName}.s3.${region}.amazonaws.com`,
     };
   }
@@ -28,6 +26,36 @@ export class AppConfigService {
       nodeEnv: this.getEnvironment(),
       isDev: this.isDev(),
       isProd: this.isProd(),
+    };
+  }
+
+  get emailConfig(): {
+    user: string;
+    fromName: string;
+    password: string;
+    host: string;
+    port: number;
+    from: string;
+    secure: boolean;
+  } {
+    return {
+      user: this.getString('EMAIL_USER'),
+      host: this.getString('EMAIL_HOST'),
+      port: this.getNumber('EMAIL_PORT'),
+      password: this.getString('EMAIL_PASSWORD'),
+      from: this.getString('EMAIL_FROM'),
+      fromName: this.getString('EMAIL_FROM_NAME'),
+      secure: this.getBoolean('EMAIL_SECURE'),
+    };
+  }
+
+  get webAppConfig(): {
+    protocol: string;
+    host: string;
+  } {
+    return {
+      protocol: this.getString('WEB_APP_PROTOCOL'),
+      host: this.getString('WEB_APP_HOST'),
     };
   }
 
@@ -53,6 +81,26 @@ export class AppConfigService {
     const value = this.get(key);
 
     return value.replace(/\\n/g, '\n');
+  }
+
+  private getNumber(key: string): number {
+    const value = this.get(key);
+
+    try {
+      return Number(value);
+    } catch {
+      throw new Error(key + ' environment variable is not a number');
+    }
+  }
+
+  private getBoolean(key: string): boolean {
+    const value = this.get(key);
+
+    try {
+      return Boolean(JSON.parse(value));
+    } catch {
+      throw new Error(key + ' env var is not a boolean');
+    }
   }
 
   private get(key: string): string {

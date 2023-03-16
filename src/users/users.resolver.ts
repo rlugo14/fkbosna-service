@@ -10,13 +10,16 @@ import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisteredUser, User } from './models/users.model';
 import * as bcrypt from 'bcrypt';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
 import { AuthUserId } from 'src/auth-user.decorator';
 import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
 import { TenantService } from 'src/tenants/tenants.service';
 import { UserService } from './users.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Events } from 'src/constants';
+import { AppConfigService } from 'src/shared/services/app-config.service';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -26,6 +29,8 @@ export class UsersResolver {
     @Inject(forwardRef(() => TenantService))
     private tenantService: TenantService,
     private readonly userService: UserService,
+    private readonly eventEmitter: EventEmitter2,
+    private readonly configService: AppConfigService,
   ) {}
 
   @Mutation(() => String)
@@ -62,7 +67,7 @@ export class UsersResolver {
     @Args('password') password: string,
     @TenantId(TenantIdFrom.headers) tenantId: number,
   ): Promise<RegisteredUser> {
-    await this.tenantService.fetchUniqueById(tenantId);
+    const foundTenant = await this.tenantService.fetchUniqueById(tenantId);
 
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
@@ -70,6 +75,18 @@ export class UsersResolver {
       const user = await this.prismaService.user.create({
         data: { email, password: hash, tenantId },
         select: { id: true, email: true },
+      });
+
+      const { protocol, host } = this.configService.webAppConfig;
+      const redirectUrl = `${protocol}${foundTenant.slug}.${host}/login`;
+
+      this.eventEmitter.emit(Events.sendMail, {
+        to: email,
+        subject: 'Wilkommen! | Matdienst.de',
+        template: './welcome',
+        context: {
+          url: redirectUrl,
+        },
       });
 
       return user;

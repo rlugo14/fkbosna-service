@@ -1,0 +1,71 @@
+---
+title: "Confirm your email address"
+preheader: "Please confirm your email address in order to activate your account"
+bodyClass: bg-slate-50
+---
+
+<extends src="src/layouts/main.html">
+  <block name="template">
+    <table class="w-full font-sans">
+      <tr>
+        <td align="center" class="bg-slate-50">
+          <table class="w-150 sm:w-full">
+            <tr>
+              <td class="p-12 sm:py-8 sm:px-6 text-center">
+                <a href="https://matdienst.de">
+                  <img src="https://api.matdienst.de/public/logo.png" width="70" alt="Maizzle" class="max-w-full align-middle [border:0]">
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" class="sm:px-6">
+                <table class="w-full">
+                  <tr>
+                    <td class="p-12 sm:px-6 bg-white text-slate-700 text-base text-left leading-6 rounded shadow-sm">
+                      <p>
+                        Hallo,
+                      </p>
+                      <p class="text-2xl sm:leading-8 text-black font-semibold m-0 mb-6">
+                        Wilkommen zu <span class="bg-yellow-ui px-1 rounded-sm" >Matdienst</span>
+                      </p>
+                      <p class="m-0 mb-6">
+                       Lege jetzt los mit dem Materialdienst deines Vereines, und füge den ersten Spieler oder die erste Gruppe hinzu.
+                      </p>
+                      <div>
+                        <a
+                            href="@{{url}}"
+                            class="relative inline-block text-sm font-medium text-black active:text-orange-500 focus:outline-none focus:ring"
+                        >
+                            <span class="relative block px-8 py-3 bg-yellow-ui border border-current uppercase font-bold">
+                                Einloggen
+                            </span>
+                        </a>
+                      </div>
+                      <table class="w-full" role="separator">
+                        <tr>
+                          <td class="py-8">
+                            <div class="bg-slate-200 h-px leading-px">&zwnj;</div>
+                          </td>
+                        </tr>
+                      </table>
+                      <p class="m-0 mb-4">
+                        Wenn du dich nicht für Matdienst registriert hast, kannst du diese Email ignorieren.
+                      </p>
+                      <p class="m-0 mb-4">
+                        Vielen Dank, <br />dein Matdienst Team
+                      </p>
+                    </td>
+                  </tr>
+                  <tr role="separator">
+                    <td class="h-12"></td>
+                  </tr>
+
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </block>
+</extends>
