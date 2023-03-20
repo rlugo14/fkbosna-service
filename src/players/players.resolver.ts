@@ -50,7 +50,7 @@ export class PlayersResolver {
   async color(@Parent() player: Player): Promise<Color> {
     const { id } = player;
     return this.prismaService.color.findFirst({
-      where: { players: { some: { id } } },
+      where: { players: { some: { id } }, deletedAt: null },
       include: { tenant: true },
     });
   }
@@ -59,7 +59,7 @@ export class PlayersResolver {
   async tenant(@Parent() player: Player): Promise<Tenant> {
     const { id } = player;
     return this.prismaService.tenant.findFirst({
-      where: { players: { some: { id } } },
+      where: { players: { some: { id } }, deletedAt: null },
     });
   }
 
@@ -70,7 +70,7 @@ export class PlayersResolver {
   ): Promise<Player[]> {
     return this.prismaService.player.findMany({
       ...playersArgs,
-      where: { tenantId },
+      where: { tenantId, deletedAt: null },
       include: { tenant: true },
     });
   }
@@ -189,7 +189,7 @@ export class PlayersResolver {
 
     return this.prismaService.player.updateMany({
       data: { colorId: null },
-      where: { OR: ids },
+      where: { OR: ids, deletedAt: null },
     });
   }
 }

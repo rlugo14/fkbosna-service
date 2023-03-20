@@ -27,4 +27,7 @@ export class Player {
 
   @Field()
   tenantId: number;
+
+  @Field(() => Date, { nullable: true })
+  deletedAt?: Date;
 }

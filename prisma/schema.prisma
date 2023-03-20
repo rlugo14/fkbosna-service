@@ -11,50 +11,54 @@ generator client {
 }
 
 model User {
-    id       Int     @id @default(autoincrement())
-    email    String  @unique
-    password String
-    tenant   Tenant? @relation(fields: [tenantId], references: [id])
-    tenantId Int?
+    id        Int       @id @default(autoincrement())
+    email     String    @unique
+    password  String
+    tenant    Tenant?   @relation(fields: [tenantId], references: [id])
+    tenantId  Int?
+    deletedAt DateTime?
 
     @@map(name: "users")
 }
 
 model Player {
-    id        Int     @id @default(autoincrement())
+    id        Int       @id @default(autoincrement())
     firstname String
     lastname  String
-    color     Color?  @relation(fields: [colorId], references: [id])
+    color     Color?    @relation(fields: [colorId], references: [id])
     colorId   Int?
-    fupaSlug  String  @default("")
+    fupaSlug  String    @default("")
     imageName String?
-    tenant    Tenant? @relation(fields: [tenantId], references: [id])
+    tenant    Tenant?   @relation(fields: [tenantId], references: [id])
     tenantId  Int?
+    deletedAt DateTime?
 
     @@map(name: "players")
 }
 
 model Color {
-    id       Int      @id @default(autoincrement())
-    players  Player[]
-    name     String
-    hexCode  String
-    tenant   Tenant?  @relation(fields: [tenantId], references: [id])
-    tenantId Int?
+    id        Int       @id @default(autoincrement())
+    players   Player[]
+    name      String
+    hexCode   String
+    tenant    Tenant?   @relation(fields: [tenantId], references: [id])
+    tenantId  Int?
+    deletedAt DateTime?
 
     @@map(name: "colors")
 }
 
 model Tenant {
-    id        Int      @id @default(autoincrement())
-    slug      String   @unique
+    id        Int       @id @default(autoincrement())
+    slug      String    @unique
     name      String
     users     User[]
     players   Player[]
     colors    Color[]
-    fupaSlug  String   @default("")
+    fupaSlug  String    @default("")
     imageName String?
-    active    Boolean  @default(true)
+    active    Boolean   @default(true)
+    deletedAt DateTime?
 
     @@map(name: "tenants")
 }

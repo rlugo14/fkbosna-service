@@ -21,4 +21,7 @@ export class Color {
 
   @Field()
   tenantId: number;
+
+  @Field(() => Date, { nullable: true })
+  deletedAt?: Date;
 }

@@ -9,7 +9,13 @@ type Color {
   players: [Player!]!
   tenant: Tenant!
   tenantId: Float!
+  deletedAt: DateTime
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Player {
   id: Int!
@@ -20,6 +26,7 @@ type Player {
   imageName: String
   tenant: Tenant!
   tenantId: Float!
+  deletedAt: DateTime
 }
 
 type Tenant {
@@ -30,6 +37,7 @@ type Tenant {
   imageName: String
   players: [Player!]!
   colors: [Color!]!
+  deletedAt: DateTime
 }
 
 type RegisteredUser {

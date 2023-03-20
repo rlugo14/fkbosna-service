@@ -24,4 +24,7 @@ export class Tenant {
 
   @Field(() => [Color])
   colors?: Color[];
+
+  @Field(() => Date, { nullable: true })
+  deletedAt?: Date;
 }

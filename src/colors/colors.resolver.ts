@@ -57,7 +57,7 @@ export class ColorsResolver {
   ): Promise<Color[]> {
     return this.prismaService.color.findMany({
       ...resultArgs,
-      where: { tenantId },
+      where: { tenantId, deletedAt: null },
       include: { tenant: true },
     });
   }
@@ -165,6 +165,8 @@ export class ColorsResolver {
   @ResolveField()
   async players(@Parent() color: Color) {
     const { id } = color;
-    return this.prismaService.player.findMany({ where: { colorId: id } });
+    return this.prismaService.player.findMany({
+      where: { colorId: id, deletedAt: null },
+    });
   }
 }

@@ -14,16 +14,16 @@ export class ColorService {
   ) {}
 
   async fetchUnique(id: number) {
-    const foundPlayer = await this.prismaService.color.findUnique({
+    const foundColor = await this.prismaService.color.findUnique({
       where: { id },
       include: { tenant: true },
     });
 
-    if (!foundPlayer) {
+    if (!foundColor || foundColor.deletedAt) {
       throw new NotFoundException(`Player with ID: ${id} not found`);
     }
 
-    return foundPlayer;
+    return foundColor;
   }
 
   async verifyUserCanManageColor(userId: number, colorId: number) {

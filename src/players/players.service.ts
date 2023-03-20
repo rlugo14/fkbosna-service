@@ -19,7 +19,7 @@ export class PlayerService {
       include: { tenant: true },
     });
 
-    if (!foundPlayer) {
+    if (!foundPlayer || foundPlayer.deletedAt) {
       throw new NotFoundException(`Player with ID: ${id} not found`);
     }
 

@@ -19,6 +19,9 @@ export class User {
 
   @Field()
   tenantId: number;
+
+  @Field(() => Date, { nullable: true })
+  deletedAt?: Date;
 }
 
 @ObjectType()
