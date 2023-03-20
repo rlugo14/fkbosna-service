@@ -17,6 +17,21 @@ export const bearerTokenFromGraphql = (context: ExecutionContext) => {
   return bearerToken;
 };
 
+export const bearerTokenFromContext = (context: ExecutionContext) => {
+  let bearerToken: string;
+
+  switch (context.getType().toLowerCase()) {
+    case 'http':
+      bearerToken = bearerTokenFromHttp(context);
+      break;
+    case 'graphql':
+      bearerToken = bearerTokenFromGraphql(context);
+      break;
+  }
+
+  return bearerToken;
+};
+
 export const contextToGqlContext = (context: ExecutionContext): GqlContext =>
   GqlExecutionContext.create(context).getContext();
 

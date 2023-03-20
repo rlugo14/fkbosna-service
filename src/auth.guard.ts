@@ -6,11 +6,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import {
-  bearerTokenFromGraphql,
-  bearerTokenFromHttp,
+  bearerTokenFromContext,
   isBearerToken,
 } from './helpers/extractBearerToken';
 import { JwtService } from '@nestjs/jwt';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -22,17 +22,7 @@ export class AuthGuard implements CanActivate {
     this.secret = this.appConfigService.jwtConfig.jwtSecret;
   }
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    let bearerToken: string;
-
-    switch (context.getType().toLowerCase()) {
-      case 'http':
-        bearerToken = bearerTokenFromHttp(context);
-        break;
-      case 'graphql':
-        bearerToken = bearerTokenFromGraphql(context);
-        break;
-    }
-
+    const bearerToken = bearerTokenFromContext(context);
     await this.validateBearerToken(bearerToken);
     return true;
   }
@@ -47,7 +37,14 @@ export class AuthGuard implements CanActivate {
     try {
       return this.jwtService.verify(token, { secret: this.secret });
     } catch (error) {
-      throw new UnauthorizedException('Invalid Token');
+      switch (error.constructor) {
+        case TokenExpiredError:
+          throw new UnauthorizedException(error.message);
+        case JsonWebTokenError:
+          throw new UnauthorizedException(error.message);
+        default:
+          throw new UnauthorizedException('Invalid Token');
+      }
     }
   }
 }

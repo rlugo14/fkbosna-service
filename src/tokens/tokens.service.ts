@@ -3,7 +3,6 @@ import { JwtService } from '@nestjs/jwt';
 import { AppConfigService } from 'src/shared/services/app-config.service';
 import { TokenPayload } from './interfaces/token.payload';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { DecodedTokenPayload } from './interfaces/decodedToken.payload';
 
 const MINS_15_IN_SECONDS = 15 * 60;
 const DAY_1_IN_SECONDS = 1 * 24 * 60 * 60;
@@ -47,25 +46,13 @@ export class TokenService {
     return res.count;
   }
 
-  async checkTokenValidity(userId: number) {
+  async checkTokenValidity(token: string) {
     const foundToken = await this.prismaService.token.findFirst({
-      where: { userId, deletedAt: null },
+      where: { token, deletedAt: null },
     });
 
     if (!foundToken) {
       throw new UnauthorizedException('Token is invalid');
-    }
-
-    const tokenPayload = this.jwtService.decode(
-      foundToken.token,
-    ) as DecodedTokenPayload;
-
-    const isTokenValid = tokenPayload.exp > Date.now();
-
-    if (!isTokenValid) {
-      throw new UnauthorizedException('Token expired');
-    } else {
-      return;
     }
   }
 }
