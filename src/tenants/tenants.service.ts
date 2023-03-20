@@ -40,7 +40,7 @@ export class TenantService {
   }
 
   async verifyUserCanManageTenant(userId: number, tenantId: number) {
-    const user = await this.userService.fetchUnique(userId);
+    const user = await this.userService.fetchUniqueById(userId);
     const targetTenant = await this.fetchUniqueById(tenantId);
 
     if (user.tenantId !== targetTenant.id) {

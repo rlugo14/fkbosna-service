@@ -3,11 +3,7 @@ import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Tenant } from './models/tenant.model';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ResultArgs } from 'src/shared/dto/results.args';
-import {
-  BadRequestException,
-  NotFoundException,
-  UseGuards,
-} from '@nestjs/common';
+import { NotFoundException, UseGuards } from '@nestjs/common';
 import { AuthGuard } from 'src/auth.guard';
 import {
   TenantWhereUniqueInput,

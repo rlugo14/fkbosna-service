@@ -1,13 +1,13 @@
 import { tokenFromBearer } from './../helpers/extractBearerToken';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from 'src/auth/interfaces/token.payload';
 import InvalidTenantException from 'src/exceptions/InvalidTenantException';
 import NoTenantException from 'src/exceptions/NoTenantException';
 import {
   bearerTokenFromGraphql,
   contextToGqlContext,
 } from 'src/helpers/extractBearerToken';
+import { TokenPayload } from 'src/tokens/interfaces/token.payload';
 
 const jwtService = new JwtService();
 

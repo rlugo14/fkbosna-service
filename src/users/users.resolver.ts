@@ -11,7 +11,6 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisteredUser, User } from './models/users.model';
 import * as bcrypt from 'bcrypt';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
-import { AuthService } from '../auth/auth.service';
 import { AuthGuard } from 'src/auth.guard';
 import { AuthUserId } from 'src/auth-user.decorator';
 import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
@@ -20,12 +19,13 @@ import { UserService } from './users.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Events } from 'src/constants';
 import { AppConfigService } from 'src/shared/services/app-config.service';
+import { TokenService } from 'src/tokens/tokens.service';
 
 @Resolver(() => User)
 export class UsersResolver {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly authService: AuthService,
+    private readonly tokenService: TokenService,
     @Inject(forwardRef(() => TenantService))
     private tenantService: TenantService,
     private readonly userService: UserService,
@@ -54,7 +54,7 @@ export class UsersResolver {
       throw new UnauthorizedException();
     }
 
-    return this.authService.createToken({
+    return this.tokenService.createLoginToken({
       userId: user.id,
       email: user.email,
       tenantId,

@@ -1,27 +1,53 @@
+import { AppConfigService } from './../shared/services/app-config.service';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as jwt from 'jsonwebtoken';
-import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './interfaces/token.payload';
-
-const MINS_15_IN_SECONDS = 15 * 60;
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { Events } from 'src/constants';
+import { TokenService } from 'src/tokens/tokens.service';
+import { UserService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
-  private secret: string;
   constructor(
-    private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
-  ) {
-    this.secret = this.configService.get<string>('JWT_SECRET');
-  }
-  createToken({ userId, email, tenantId }: TokenPayload) {
-    return this.jwtService.signAsync(
-      { userId, email, tenantId },
-      {
-        secret: this.secret,
-        expiresIn: MINS_15_IN_SECONDS,
-      },
+    private readonly tokenService: TokenService,
+    private readonly userService: UserService,
+    private readonly configService: AppConfigService,
+    private eventEmitter: EventEmitter2,
+  ) {}
+
+  async resetPassword(email: string) {
+    const foundUser = await this.userService.fetchUniqueByEmail(email);
+
+    if (!foundUser) {
+      return;
+    }
+
+    await this.tokenService.deleteAll(foundUser.id);
+    const token = await this.tokenService.createChangePasswordToken({
+      userId: foundUser.id,
+      email: foundUser.email,
+      tenantId: foundUser.tenantId,
+    });
+
+    const resetPasswordLink = this.createResetPasswordLink(
+      foundUser.tenant.slug,
+      token,
     );
+    this.sendResetPasswordMail(foundUser.email, resetPasswordLink);
+  }
+
+  private createResetPasswordLink(tenantSlug: string, token: string) {
+    const { protocol, host } = this.configService.webAppConfig;
+    return `${protocol}${tenantSlug}.${host}/reset-password?token=${token}`;
+  }
+
+  private sendResetPasswordMail(email: string, resetPasswordLink: string) {
+    this.eventEmitter.emit(Events.sendMail, {
+      to: email,
+      subject: 'Passwort zurücksetzen | Matdienst.de',
+      template: './reset-password',
+      context: {
+        url: resetPasswordLink,
+      },
+    });
   }
 }

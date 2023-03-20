@@ -27,7 +27,7 @@ export class PlayerService {
   }
 
   async verifyUserCanManagePlayer(userId: number, playerId: number) {
-    const user = await this.userService.fetchUnique(userId);
+    const user = await this.userService.fetchUniqueById(userId);
     const targetPlayer = await this.fetchUnique(playerId);
 
     if (user.tenantId !== targetPlayer.tenantId) {

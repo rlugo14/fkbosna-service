@@ -17,6 +17,7 @@ model User {
     tenant    Tenant?   @relation(fields: [tenantId], references: [id])
     tenantId  Int?
     deletedAt DateTime?
+    tokens    Token[]
 
     @@map(name: "users")
 }
@@ -61,4 +62,14 @@ model Tenant {
     deletedAt DateTime?
 
     @@map(name: "tenants")
+}
+
+model Token {
+    id        Int       @id @default(autoincrement())
+    token     String    @db.VarChar(200)
+    deletedAt DateTime?
+    user      User?     @relation(fields: [userId], references: [id])
+    userId    Int?
+
+    @@map(name: "tokens")
 }

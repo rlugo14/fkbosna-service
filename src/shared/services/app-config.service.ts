@@ -21,6 +21,12 @@ export class AppConfigService {
     };
   }
 
+  get jwtConfig() {
+    const jwtSecret = this.getString('JWT_SECRET');
+
+    return { jwtSecret };
+  }
+
   get appConfig() {
     return {
       nodeEnv: this.getEnvironment(),

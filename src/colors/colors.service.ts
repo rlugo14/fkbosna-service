@@ -27,7 +27,7 @@ export class ColorService {
   }
 
   async verifyUserCanManageColor(userId: number, colorId: number) {
-    const user = await this.userService.fetchUnique(userId);
+    const user = await this.userService.fetchUniqueById(userId);
     const targetColor = await this.fetchUnique(colorId);
 
     if (user.tenantId !== targetColor.tenantId) {

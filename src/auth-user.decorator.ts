@@ -5,7 +5,7 @@ import {
 import { ExecutionContext } from '@nestjs/common';
 import { createParamDecorator } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './auth/interfaces/token.payload';
+import { TokenPayload } from './tokens/interfaces/token.payload';
 
 const jwtService = new JwtService();
 
