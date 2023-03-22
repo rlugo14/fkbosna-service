@@ -5,7 +5,7 @@ import {
 import { ExecutionContext } from '@nestjs/common';
 import { createParamDecorator } from '@nestjs/common';
 
-export function token() {
+export function Token() {
   return createParamDecorator(
     async (_data: unknown, context: ExecutionContext) => {
       const bearerToken = bearerTokenFromContext(context);

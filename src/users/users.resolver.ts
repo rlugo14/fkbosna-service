@@ -20,6 +20,8 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Events } from 'src/constants';
 import { AppConfigService } from 'src/shared/services/app-config.service';
 import { TokenService } from 'src/tokens/tokens.service';
+import { Boolean } from 'aws-sdk/clients/batch';
+import { Token } from 'src/token.decorator';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -69,8 +71,7 @@ export class UsersResolver {
   ): Promise<RegisteredUser> {
     const foundTenant = await this.tenantService.fetchUniqueById(tenantId);
 
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
+    const hash = await this.generatePasswordHash(password);
     try {
       const user = await this.prismaService.user.create({
         data: { email, password: hash, tenantId },
@@ -115,5 +116,26 @@ export class UsersResolver {
     } catch (error) {
       return false;
     }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => Boolean)
+  async changePassword(
+    @Args('newPassword') newPassword: string,
+    @AuthUserId() userId: number,
+    @Token() token: string,
+  ): Promise<boolean> {
+    await this.tokenService.checkTokenValidity(token);
+    await this.tokenService.deleteAll(userId);
+    const hash = await this.generatePasswordHash(newPassword);
+    await this.userService.updatePassword(userId, hash);
+    return true;
+  }
+
+  private async generatePasswordHash(password: string) {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+
+    return hash;
   }
 }
