@@ -1,6 +1,7 @@
 import { tokenFromBearer } from './../helpers/extractBearerToken';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { IncomingHttpHeaders } from 'http2';
 import InvalidTenantException from 'src/exceptions/InvalidTenantException';
 import NoTenantException from 'src/exceptions/NoTenantException';
 import {
@@ -18,14 +19,21 @@ export enum TenantIdFrom {
 
 export const TenantId = createParamDecorator(
   (from: TenantIdFrom, ctx: ExecutionContext) => {
-    const gqlContext = contextToGqlContext(ctx);
+    let headers: IncomingHttpHeaders;
+
+    switch (ctx.getType().toLowerCase()) {
+      case 'http':
+        headers = ctx.switchToHttp().getRequest().headers;
+        break;
+      case 'graphql':
+        headers = contextToGqlContext(ctx).req.headers;
+        break;
+    }
     let tenantId: number;
 
     switch (from) {
       case TenantIdFrom.headers:
-        const tenantIdFromHeader = gqlContext.req.headers[
-          'x-tenant-id'
-        ] as string;
+        const tenantIdFromHeader = headers['x-tenant-id'] as string;
 
         if (!tenantIdFromHeader) throw new NoTenantException();
         if (typeof tenantIdFromHeader === 'string') {

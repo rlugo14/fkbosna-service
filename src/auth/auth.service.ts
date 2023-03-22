@@ -14,10 +14,10 @@ export class AuthService {
     private eventEmitter: EventEmitter2,
   ) {}
 
-  async resetPassword(email: string) {
+  async resetPassword(email: string, tenantId: number) {
     const foundUser = await this.userService.fetchUniqueByEmail(email);
 
-    if (!foundUser) {
+    if (!foundUser || foundUser.tenantId !== tenantId) {
       return;
     }
 

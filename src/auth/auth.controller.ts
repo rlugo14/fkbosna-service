@@ -1,3 +1,4 @@
+import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
 import { TokenService } from 'src/tokens/tokens.service';
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -12,8 +13,11 @@ export class AuthController {
   ) {}
 
   @Post('reset-password')
-  async resetPassword(@Body('email') email: string) {
-    return this.authService.resetPassword(email);
+  async resetPassword(
+    @Body('email') email: string,
+    @TenantId(TenantIdFrom.headers) tenantId: number,
+  ) {
+    return this.authService.resetPassword(email, tenantId);
   }
 
   @Get('verify-token')
