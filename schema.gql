@@ -70,6 +70,7 @@ type Mutation {
   removePlayersColor(where: PlayersWhereInput!): BatchResponse!
   login(email: String!, password: String!): String!
   register(email: String!, password: String!): RegisteredUser!
+  createUser(email: String!): RegisteredUser!
   changePassword(newPassword: String!): Boolean!
   createTenant(tenant: CreateTenantInput!): Tenant!
   updateTenant(data: UpdateTenantInput!, where: TenantWhereUniqueInput!): Tenant!

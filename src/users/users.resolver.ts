@@ -22,6 +22,7 @@ import { AppConfigService } from 'src/shared/services/app-config.service';
 import { TokenService } from 'src/tokens/tokens.service';
 import { Boolean } from 'aws-sdk/clients/batch';
 import { Token } from 'src/token.decorator';
+import * as randomatic from 'randomatic';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -73,22 +74,46 @@ export class UsersResolver {
   ): Promise<RegisteredUser> {
     const foundTenant = await this.tenantService.fetchUniqueById(tenantId);
 
-    const hash = await this.generatePasswordHash(password);
     try {
-      const user = await this.prismaService.user.create({
-        data: { email, password: hash, tenantId },
-        select: { id: true, email: true },
-      });
-
-      const { protocol, host } = this.configService.webAppConfig;
-      const redirectUrl = `${protocol}${foundTenant.slug}.${host}/login`;
+      const user = await this.userService.create(email, password, tenantId);
 
       this.eventEmitter.emit(Events.sendMail, {
         to: email,
         subject: 'Wilkommen! | Matdienst.de',
         template: './welcome',
         context: {
-          url: redirectUrl,
+          url: this.userService.buildTenantLoginUrl(foundTenant.slug),
+        },
+      });
+
+      return user;
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        throw new HttpException('Entity Already Exist', HttpStatus.CONFLICT);
+      }
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => RegisteredUser)
+  async createUser(
+    @Args('email') email: string,
+    @TenantId(TenantIdFrom.token) tenantId: number,
+  ): Promise<RegisteredUser> {
+    const foundTenant = await this.tenantService.fetchUniqueById(tenantId);
+
+    const password = randomatic('Aa0', 12);
+
+    try {
+      const user = await this.userService.create(email, password, tenantId);
+
+      this.eventEmitter.emit(Events.sendMail, {
+        to: email,
+        subject: 'Wilkommen! | Matdienst.de',
+        template: './create-user',
+        context: {
+          url: this.userService.buildTenantLoginUrl(foundTenant.slug),
+          password,
         },
       });
 
@@ -129,15 +154,8 @@ export class UsersResolver {
   ): Promise<boolean> {
     await this.tokenService.checkTokenValidity(token);
     await this.tokenService.deleteAll(userId);
-    const hash = await this.generatePasswordHash(newPassword);
+    const hash = await this.userService.generatePasswordHash(newPassword);
     await this.userService.updatePassword(userId, hash);
     return true;
-  }
-
-  private async generatePasswordHash(password: string) {
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(password, salt);
-
-    return hash;
   }
 }
