@@ -9,7 +9,7 @@ import { IncomingMessage } from 'http';
 import { UserModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
-import { ApolloDriver } from '@nestjs/apollo';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { SharedModule } from './shared/shared.module';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
@@ -21,15 +21,19 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
-    GraphQLModule.forRoot({
-      driver: ApolloDriver,
-      installSubscriptionHandlers: true,
-      autoSchemaFile: 'schema.gql',
-      context: ({ req }: { req: IncomingMessage }) => ({
-        ...req,
-        authorization: req.headers.authorization,
+    GraphQLModule.forRootAsync<ApolloDriverConfig>({
+      useFactory: (configService: AppConfigService) => ({
+        playground: configService.appConfig.isDev,
+        installSubscriptionHandlers: true,
+        autoSchemaFile: 'schema.gql',
+        context: ({ req }: { req: IncomingMessage }) => ({
+          ...req,
+          authorization: req.headers.authorization,
+        }),
+        cors: true,
       }),
-      cors: true,
+      driver: ApolloDriver,
+      inject: [AppConfigService],
     }),
     AwsSdkModule.forRootAsync({
       defaultServiceOptions: {
@@ -47,6 +51,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ConfigModule.forRoot({
       isGlobal: true,
       validationSchema: Joi.object({
+        NODE_ENV: Joi.string().default('production'),
         PORT: Joi.number().default(4000),
         JWT_SECRET: Joi.string().required(),
         AWS_ACCESS_KEY_ID: Joi.string().required(),
