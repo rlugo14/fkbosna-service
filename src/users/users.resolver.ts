@@ -56,10 +56,12 @@ export class UsersResolver {
       throw new UnauthorizedException();
     }
 
+    await this.tokenService.deleteAll(user.id);
     return this.tokenService.createLoginToken({
       userId: user.id,
       email: user.email,
       tenantId,
+      type: 'access',
     });
   }
 

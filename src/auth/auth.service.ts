@@ -26,6 +26,7 @@ export class AuthService {
       userId: foundUser.id,
       email: foundUser.email,
       tenantId: foundUser.tenantId,
+      type: 'refresh',
     });
 
     const resetPasswordLink = this.createResetPasswordLink(

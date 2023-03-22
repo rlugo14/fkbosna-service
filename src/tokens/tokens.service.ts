@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { AppConfigService } from 'src/shared/services/app-config.service';
 import { TokenPayload } from './interfaces/token.payload';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { DecodedTokenPayload } from './interfaces/decodedToken.payload';
 
 const MINS_15_IN_SECONDS = 15 * 60;
 const DAY_1_IN_SECONDS = 1 * 24 * 60 * 60;
@@ -31,11 +32,15 @@ export class TokenService {
       expiresIn: DAY_1_IN_SECONDS,
     });
 
-    const createdToken = await this.prismaService.token.create({
-      data: { token: token, userId: payload.userId },
-    });
+    const createdToken = await this.createToken(token, payload.userId);
 
     return createdToken.token;
+  }
+
+  private async createToken(token: string, userId: number) {
+    return this.prismaService.token.create({
+      data: { token: token, userId: userId },
+    });
   }
 
   async deleteAll(userId: number): Promise<number> {
@@ -47,12 +52,16 @@ export class TokenService {
   }
 
   async checkTokenValidity(token: string) {
-    const foundToken = await this.prismaService.token.findFirst({
-      where: { token, deletedAt: null },
-    });
+    const decodedToken = this.jwtService.decode(token) as DecodedTokenPayload;
 
-    if (!foundToken) {
-      throw new UnauthorizedException('Token is invalid');
+    if (decodedToken.type === 'refresh') {
+      const foundToken = await this.prismaService.token.findFirst({
+        where: { token, deletedAt: null },
+      });
+
+      if (!foundToken) {
+        throw new UnauthorizedException('Token is invalid');
+      }
     }
   }
 }
