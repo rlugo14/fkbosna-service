@@ -102,7 +102,7 @@ export class UsersResolver {
   ): Promise<RegisteredUser> {
     const foundTenant = await this.tenantService.fetchUniqueById(tenantId);
 
-    const password = randomatic('Aa0', 12);
+    const password = randomatic('*', 12);
 
     try {
       const user = await this.userService.create(email, password, tenantId);
