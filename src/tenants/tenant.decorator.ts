@@ -1,4 +1,7 @@
-import { tokenFromBearer } from './../helpers/extractBearerToken';
+import {
+  bearerTokenFromHttp,
+  tokenFromBearer,
+} from './../helpers/extractBearerToken';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IncomingHttpHeaders } from 'http2';
@@ -20,8 +23,9 @@ export enum TenantIdFrom {
 export const TenantId = createParamDecorator(
   (from: TenantIdFrom, ctx: ExecutionContext) => {
     let headers: IncomingHttpHeaders;
+    const requestContextType = ctx.getType().toLowerCase();
 
-    switch (ctx.getType().toLowerCase()) {
+    switch (requestContextType) {
       case 'http':
         headers = ctx.switchToHttp().getRequest().headers;
         break;
@@ -43,7 +47,10 @@ export const TenantId = createParamDecorator(
         if (Number.isNaN(tenantId))
           throw new InvalidTenantException(tenantIdFromHeader);
       case TenantIdFrom.token:
-        const bearerToken = bearerTokenFromGraphql(ctx);
+        const bearerToken =
+          requestContextType === 'graphql'
+            ? bearerTokenFromGraphql(ctx)
+            : bearerTokenFromHttp(ctx);
         const token = tokenFromBearer(bearerToken);
 
         if (token) {

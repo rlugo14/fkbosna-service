@@ -9,5 +9,6 @@ import { JwtModule } from '@nestjs/jwt';
   imports: [S3ManagerModule, JwtModule],
   providers: [PlayerImageService, S3ManagerService],
   controllers: [PlayerImageController],
+  exports: [PlayerImageService],
 })
 export class PlayerImageModule {}

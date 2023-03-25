@@ -24,6 +24,6 @@ export class PlayerImageController {
     @Body('playerId', ParseIntPipe) playerId: number,
     @Body('tenantSlug') tenantSlug: string,
   ) {
-    return this.playerImageService.create(file, playerId, tenantSlug);
+    return this.playerImageService.createFromFile(file, playerId, tenantSlug);
   }
 }

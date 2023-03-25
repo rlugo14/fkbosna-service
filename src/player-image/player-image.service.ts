@@ -10,16 +10,38 @@ export class PlayerImageService {
     private readonly s3: S3ManagerService,
   ) {}
 
-  async create(
+  async createFromFile(
     file: Express.Multer.File,
     playerId: number,
     tenantSlug: string,
   ): Promise<Player & { color: Color }> {
-    const putObjectResponse = await this.s3.putObject(file, tenantSlug);
+    const putObjectResponse = await this.s3.putObjectFromFile(file, tenantSlug);
 
     const uploadedFileName = putObjectResponse.uploadedFileName;
 
     if (!uploadedFileName) throw new BadRequestException();
+
+    return this.prismaService.player.update({
+      data: { imageName: uploadedFileName },
+      where: { id: playerId },
+      include: { color: true },
+    });
+  }
+
+  async createFromBuffer(
+    buffer: Buffer,
+    playerId: number,
+    tenantSlug: string,
+  ): Promise<Player & { color: Color }> {
+    const putObjectResponse = await this.s3.putObjectFromBuffer(
+      buffer,
+      tenantSlug,
+    );
+
+    const uploadedFileName = putObjectResponse.uploadedFileName;
+
+    if (!uploadedFileName)
+      throw new BadRequestException('Buffer not uploaded!');
 
     return this.prismaService.player.update({
       data: { imageName: uploadedFileName },

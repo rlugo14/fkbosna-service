@@ -15,7 +15,7 @@ export class TenantImageService {
     tenantId: number,
     tenantSlug: string,
   ): Promise<Tenant> {
-    const putObjectResponse = await this.s3.putObject(file, tenantSlug);
+    const putObjectResponse = await this.s3.putObjectFromFile(file, tenantSlug);
 
     const uploadedFileName = putObjectResponse.uploadedFileName;
 
