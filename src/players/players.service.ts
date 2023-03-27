@@ -68,6 +68,7 @@ export class PlayerService {
 
   async importFromFupa(tenantFupaSlug: string, tenantId: number) {
     this.tenant = await this.tenantService.fetchUniqueById(tenantId);
+    await this.prismaService.player.deleteMany({ where: { tenantId } });
     const squadUrl = `https://api.fupa.net/v1/teams/${tenantFupaSlug}/squad`;
     return this.httpService.get<FetchFupaSquadResponse>(squadUrl).pipe(
       map((response) => response.data),
@@ -103,7 +104,11 @@ export class PlayerService {
         }),
         from(
           this.prismaService.player.findFirst({
-            where: { fupaSlug: player.slug, tenantId: this.tenant.id },
+            where: {
+              fupaSlug: player.slug,
+              tenantId: this.tenant.id,
+              deletedAt: null,
+            },
           }),
         ),
       ]),
