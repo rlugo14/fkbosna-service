@@ -1,4 +1,4 @@
-export interface Player {
+export interface FupaPlayer {
   slug: string;
   firstName: string;
   lastName: string;
@@ -10,5 +10,5 @@ export interface Image {
 }
 
 export interface FetchFupaSquadResponse {
-  players: Player[];
+  players: FupaPlayer[];
 }

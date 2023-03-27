@@ -7,13 +7,34 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/users/users.service';
-import { FetchFupaSquadResponse } from './interfaces/fupa';
-import { map, firstValueFrom, from, zip, count } from 'rxjs';
+import { FetchFupaSquadResponse, FupaPlayer } from './interfaces/fupa';
+import {
+  map,
+  firstValueFrom,
+  from,
+  zip,
+  count,
+  combineLatest,
+  combineLatestWith,
+  mergeMap,
+  concatMap,
+  Subject,
+  Observable,
+  forkJoin,
+  toArray,
+  flatMap,
+  switchMap,
+  mergeAll,
+  of,
+  retry,
+} from 'rxjs';
 import { PlayerImageService } from 'src/player-image/player-image.service';
 import { TenantService } from 'src/tenants/tenants.service';
+import { Tenant } from 'src/tenants/models/tenant.model';
 
 @Injectable()
 export class PlayerService {
+  private tenant: Tenant;
   constructor(
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
@@ -46,52 +67,54 @@ export class PlayerService {
   }
 
   async importFromFupa(tenantFupaSlug: string, tenantId: number) {
-    const tenant = await this.tenantService.fetchUniqueById(tenantId);
+    this.tenant = await this.tenantService.fetchUniqueById(tenantId);
     const squadUrl = `https://api.fupa.net/v1/teams/${tenantFupaSlug}/squad`;
-    const squadObservable = this.httpService
-      .get<FetchFupaSquadResponse>(squadUrl)
-      .pipe(map((response) => response.data));
+    return this.httpService.get<FetchFupaSquadResponse>(squadUrl).pipe(
+      map((response) => response.data),
+      map((squadResponse) => squadResponse.players),
+      mergeMap(async (fupaPlayers) => {
+        await this.prismaService.player.createMany({
+          data: fupaPlayers.map((player) => ({
+            firstname: player.firstName,
+            lastname: player.lastName,
+            fupaSlug: player.slug,
+            tenantId: this.tenant.id,
+          })),
+        });
 
-    const squadResponse = await firstValueFrom(squadObservable);
-    const fupaPlayers = squadResponse.players;
-    await this.prismaService.player.createMany({
-      data: fupaPlayers.map((player) => ({
-        firstname: player.firstName,
-        lastname: player.lastName,
-        fupaSlug: player.slug,
-        tenantId: tenant.id,
-      })),
-    });
-    const players = await this.prismaService.player.findMany({
-      where: { tenantId: tenant.id },
-    });
-
-    const playersObservable = from(players);
-
-    const imageDataObservable = from(fupaPlayers).pipe(
-      map(async (player) => {
-        const imageObservable = this.httpService.get(
-          `${player.image.path}1920xauto.webp`,
-          {
-            responseType: 'arraybuffer',
-          },
-        );
-        const imageResponse = await firstValueFrom(imageObservable);
-
-        return { player, imageResponse };
+        return from(fupaPlayers);
       }),
-    );
-
-    return zip(playersObservable, imageDataObservable).pipe(
-      map(async ([player, imageData]) => {
-        const imageBuffer = Buffer.from((await imageData).imageResponse.data);
-        await this.playerImageService.createFromBuffer(
-          imageBuffer,
-          player.id,
-          this.appConfigService.appConfig.isDev ? 'development' : tenant.slug,
-        );
-      }),
-      count(),
+      mergeAll(),
+      toArray(),
+      mergeMap(this.fupaPlayersToResponsePlayerTuple),
+      retry(2),
+      mergeAll(),
+      map(this.responsePlayerTupleToUpdatedPlayer),
+      mergeAll(),
+      toArray(),
     );
   }
+
+  fupaPlayersToResponsePlayerTuple = (fupaPlayers: FupaPlayer[]) =>
+    fupaPlayers.map((player) =>
+      forkJoin([
+        this.httpService.get(`${player.image.path}1920xauto.webp`, {
+          responseType: 'arraybuffer',
+        }),
+        from(
+          this.prismaService.player.findFirst({
+            where: { fupaSlug: player.slug, tenantId: this.tenant.id },
+          }),
+        ),
+      ]),
+    );
+
+  responsePlayerTupleToUpdatedPlayer = async ([response, player]) => {
+    const imageBuffer = Buffer.from(response.data);
+    return this.playerImageService.createFromBuffer(
+      imageBuffer,
+      player.id,
+      this.appConfigService.appConfig.isDev ? 'development' : this.tenant.slug,
+    );
+  };
 }
