@@ -8,26 +8,7 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/users/users.service';
 import { FetchFupaSquadResponse, FupaPlayer } from './interfaces/fupa';
-import {
-  map,
-  firstValueFrom,
-  from,
-  zip,
-  count,
-  combineLatest,
-  combineLatestWith,
-  mergeMap,
-  concatMap,
-  Subject,
-  Observable,
-  forkJoin,
-  toArray,
-  flatMap,
-  switchMap,
-  mergeAll,
-  of,
-  retry,
-} from 'rxjs';
+import { map, from, mergeMap, forkJoin, toArray, mergeAll, retry } from 'rxjs';
 import { PlayerImageService } from 'src/player-image/player-image.service';
 import { TenantService } from 'src/tenants/tenants.service';
 import { Tenant } from 'src/tenants/models/tenant.model';
@@ -119,7 +100,7 @@ export class PlayerService {
     return this.playerImageService.createFromBuffer(
       imageBuffer,
       player.id,
-      this.appConfigService.appConfig.isDev ? 'development' : this.tenant.slug,
+      this.tenant.slug,
     );
   };
 }

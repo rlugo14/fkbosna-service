@@ -15,15 +15,29 @@ import { AuthGuard } from 'src/auth.guard';
 export class TenantImageController {
   constructor(private readonly tenantImageService: TenantImageService) {}
 
-  @Post('upload')
+  @Post('file/upload')
   @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async upload(
+  async fileUpload(
     @UploadedFile()
     file: Express.Multer.File,
     @Body('tenantId', ParseIntPipe) tenantId: number,
     @Body('tenantSlug') tenantSlug: string,
   ) {
-    return this.tenantImageService.create(file, tenantId, tenantSlug);
+    return this.tenantImageService.createFromFile(file, tenantId, tenantSlug);
+  }
+
+  @Post('source/upload')
+  @UseGuards(AuthGuard)
+  async sourceUpload(
+    @Body('imageUrl') imageUrl: string,
+    @Body('tenantId', ParseIntPipe) tenantId: number,
+    @Body('tenantSlug') tenantSlug: string,
+  ) {
+    return this.tenantImageService.downloadAndCreate(
+      imageUrl,
+      tenantId,
+      tenantSlug,
+    );
   }
 }

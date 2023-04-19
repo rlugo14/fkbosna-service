@@ -24,7 +24,7 @@ export class S3ManagerService {
   async putObjectFromFile(file: Express.Multer.File, tenantSlug: string) {
     const fileExtension = extractFileExtension(file.mimetype);
     const fileName = `${uuid()}.${fileExtension}`;
-    const fileKey = `${tenantSlug}/${fileName}`;
+    const fileKey = this.getFileKey(tenantSlug, fileName);
 
     const result = await this.s3
       .putObject({
@@ -43,7 +43,7 @@ export class S3ManagerService {
 
   async putObjectFromBuffer(buffer: Buffer, tenantSlug: string) {
     const fileName = `${uuid()}.webp`;
-    const fileKey = `${tenantSlug}/${fileName}`;
+    const fileKey = this.getFileKey(tenantSlug, fileName);
 
     const result = await this.s3
       .putObject({
@@ -59,4 +59,9 @@ export class S3ManagerService {
 
     return { uploadedFileName: fileName };
   }
+
+  private getFileKey = (tenantSlug: string, fileName: string) => {
+    const isDevEnv = this.configService.appConfig.isDev;
+    return `${isDevEnv ? 'development' : tenantSlug}/${fileName}`;
+  };
 }
