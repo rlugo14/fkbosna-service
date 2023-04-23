@@ -47,7 +47,7 @@ export class TenantsResolver {
     return this.prismaService.tenant.create({
       data: {
         name,
-        slug,
+        slug: slug.toLowerCase(),
         fupaSlug,
         imageName,
         active,
