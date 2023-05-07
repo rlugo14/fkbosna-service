@@ -23,6 +23,8 @@ import { TokenService } from 'src/tokens/tokens.service';
 import { Boolean } from 'aws-sdk/clients/batch';
 import { Token } from 'src/token.decorator';
 import * as randomatic from 'randomatic';
+import { SlackService } from 'nestjs-slack';
+import { Blocks, Message } from 'slack-block-builder';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -34,6 +36,7 @@ export class UsersResolver {
     private readonly userService: UserService,
     private readonly eventEmitter: EventEmitter2,
     private readonly configService: AppConfigService,
+    private readonly slackService: SlackService,
   ) {}
 
   @Mutation(() => String)
@@ -85,6 +88,27 @@ export class UsersResolver {
           url: this.userService.buildTenantLoginUrl(foundTenant.slug),
         },
       });
+
+      if (this.configService.appConfig.isProd) {
+        const slackMessage = Message({
+          channel: this.configService.slackConfig.channelId,
+        })
+          .blocks(
+            Blocks.Header({
+              text: 'New Tenant 🚀',
+            }),
+            Blocks.Section({}).fields(
+              `*Slug:*\n ${foundTenant.slug}`,
+              `*Created by:*\n${user.email}`,
+            ),
+            Blocks.Section({
+              text: `*Tenant Name:*\n${foundTenant.name}`,
+            }),
+          )
+          .asUser()
+          .buildToObject();
+        this.slackService.postMessage(slackMessage);
+      }
 
       return user;
     } catch (error) {

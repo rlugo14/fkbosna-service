@@ -18,6 +18,7 @@ import { TenantsModule } from './tenants/tenants.module';
 import { TenantImageModule } from './tenant-image/tenant-image.module';
 import * as Joi from 'joi';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { SlackModule } from 'nestjs-slack';
 
 @Module({
   imports: [
@@ -68,9 +69,20 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
         EMAIL_FROM: Joi.string().required(),
         EMAIL_FROM_NAME: Joi.string().default('Matdienst'),
 
+        SLACK_TOKEN: Joi.string().required(),
+        SLACK_CHANNEL_ID: Joi.string().default('C056YMQH8UR'),
+
         WEB_APP_PROTOCOL: Joi.string().default('http://'),
         WEB_APP_HOST: Joi.string().default('localhost:3000'),
       }),
+    }),
+    SlackModule.forRootAsync({
+      useFactory: (configService: AppConfigService) => ({
+        type: 'api',
+        token: configService.slackConfig.token,
+      }),
+      isGlobal: true,
+      inject: [AppConfigService],
     }),
     EventEmitterModule.forRoot(),
     PrismaModule,

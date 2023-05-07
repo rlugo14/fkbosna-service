@@ -55,6 +55,16 @@ export class AppConfigService {
     };
   }
 
+  get slackConfig(): {
+    token: string;
+    channelId: string;
+  } {
+    return {
+      token: this.getString('SLACK_TOKEN'),
+      channelId: this.getString('SLACK_CHANNEL_ID'),
+    };
+  }
+
   get webAppConfig(): {
     protocol: string;
     host: string;
