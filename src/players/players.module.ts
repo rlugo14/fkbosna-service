@@ -18,5 +18,6 @@ import { PlayerController } from './players.controller';
   ],
   providers: [PlayersResolver, PlayerService],
   controllers: [PlayerController],
+  exports: [PlayerService],
 })
 export class PlayersModule {}

@@ -33,6 +33,7 @@ model Player {
     tenant    Tenant?   @relation(fields: [tenantId], references: [id])
     tenantId  Int?
     deletedAt DateTime?
+    fines     Fine[]
 
     @@map(name: "players")
 }
@@ -50,16 +51,18 @@ model Color {
 }
 
 model Tenant {
-    id        Int       @id @default(autoincrement())
-    slug      String    @unique
+    id        Int        @id @default(autoincrement())
+    slug      String     @unique
     name      String
     users     User[]
     players   Player[]
     colors    Color[]
-    fupaSlug  String    @default("")
+    fupaSlug  String     @default("")
     imageName String?
-    active    Boolean   @default(true)
+    active    Boolean    @default(true)
     deletedAt DateTime?
+    fineTypes FineType[]
+    fines     Fine[]
 
     @@map(name: "tenants")
 }
@@ -72,4 +75,32 @@ model Token {
     userId    Int?
 
     @@map(name: "tokens")
+}
+
+model FineType {
+    id        Int       @id @default(autoincrement())
+    cost      Float
+    name      String
+    fines     Fine[]
+    tenant    Tenant    @relation(fields: [tenantId], references: [id])
+    tenantId  Int
+    deletedAt DateTime?
+
+    @@map(name: "fine_types")
+}
+
+model Fine {
+    id        Int       @id @default(autoincrement())
+    amount    Int
+    player    Player    @relation(fields: [playerId], references: [id])
+    playerId  Int
+    createdAt DateTime
+    type      FineType  @relation(fields: [typeId], references: [id])
+    typeId    Int
+    tenant    Tenant    @relation(fields: [tenantId], references: [id])
+    tenantId  Int
+    total     Float
+    deletedAt DateTime?
+
+    @@map(name: "fines")
 }

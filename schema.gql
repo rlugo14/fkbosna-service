@@ -49,6 +49,26 @@ type BatchResponse {
   count: Float!
 }
 
+type Fine {
+  id: Int!
+  amount: Float!
+  typeId: Float!
+  playerId: Float!
+  tenantId: Float!
+  total: Float!
+  createdAt: DateTime!
+  type: FineType!
+  player: Player!
+}
+
+type FineType {
+  id: Int!
+  cost: Float!
+  name: String!
+  tenantId: Float!
+  deletedAt: DateTime
+}
+
 type Query {
   player(id: Float!): Player!
   players(skip: Int! = 0, take: Int! = 40): [Player!]!
@@ -59,6 +79,8 @@ type Query {
   isTenantSlugAvailable(slug: String!): Boolean!
   color(id: Float!): Color!
   colors(skip: Int! = 0, take: Int! = 40): [Color!]!
+  fineTypes(skip: Int! = 0, take: Int! = 40): [FineType!]!
+  fines(skip: Int! = 0, take: Int! = 40): [Fine!]!
 }
 
 type Mutation {
@@ -79,6 +101,12 @@ type Mutation {
   deleteColor(id: Float!): Boolean!
   deleteManyColors(colors: DeleteManyColorsInput!): BatchResponse!
   updateColor(data: UpdateColorInput!, where: ColorWhereUniqueInput!): Color!
+  createFine(data: CreateFineInput!): Fine!
+  createFineType(data: CreateFineTypeInput!): FineType!
+  updateFineType(data: UpdateFineTypeInput!): FineType!
+  updateFine(data: UpdateFineInput!): Fine!
+  deleteFineType(id: Float!): Boolean!
+  deleteFine(id: Float!): Boolean!
 }
 
 input CreatePlayerInput {
@@ -151,4 +179,28 @@ input UpdateColorInput {
 
 input ColorWhereUniqueInput {
   id: Float
+}
+
+input CreateFineInput {
+  amount: Float!
+  playerId: Float!
+  typeId: Float!
+}
+
+input CreateFineTypeInput {
+  name: String!
+  cost: Float!
+}
+
+input UpdateFineTypeInput {
+  name: String
+  cost: Float
+  id: Float!
+}
+
+input UpdateFineInput {
+  amount: Float
+  playerId: Float
+  typeId: Float
+  id: Float!
 }

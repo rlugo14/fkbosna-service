@@ -19,6 +19,7 @@ import { TenantImageModule } from './tenant-image/tenant-image.module';
 import * as Joi from 'joi';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SlackModule } from 'nestjs-slack';
+import { FinesModule } from './fines/fines.module';
 
 @Module({
   imports: [
@@ -94,6 +95,7 @@ import { SlackModule } from 'nestjs-slack';
     PlayerImageModule,
     TenantsModule,
     TenantImageModule,
+    FinesModule,
   ],
   controllers: [],
   providers: [],
