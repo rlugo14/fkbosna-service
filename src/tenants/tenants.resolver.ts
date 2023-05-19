@@ -11,12 +11,14 @@ import {
 } from './dto/update-tenant.input';
 import { TenantService } from './tenants.service';
 import { AuthUserId } from 'src/auth-user.decorator';
+import { ColorService } from 'src/colors/colors.service';
 
 @Resolver(() => Tenant)
 export class TenantsResolver {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly tenantService: TenantService,
+    private readonly colorService: ColorService,
   ) {}
 
   @UseGuards(AuthGuard)
@@ -44,7 +46,7 @@ export class TenantsResolver {
   async createTenant(@Args('tenant') tenant: CreateTenantInput) {
     const { name, slug, fupaSlug, imageName, active } = tenant;
     await this.tenantService.verifySlugIsAvailable(slug);
-    return this.prismaService.tenant.create({
+    const newTenant = this.prismaService.tenant.create({
       data: {
         name,
         slug: slug.toLowerCase(),
@@ -53,6 +55,9 @@ export class TenantsResolver {
         active,
       },
     });
+
+    await this.colorService.createDefaultColors((await newTenant).id);
+    return newTenant;
   }
 
   @UseGuards(AuthGuard)

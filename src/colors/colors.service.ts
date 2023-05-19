@@ -34,4 +34,14 @@ export class ColorService {
       throw new ForbiddenException();
     }
   }
+
+  async createDefaultColors(tenantId: number) {
+    return this.prismaService.color.createMany({
+      data: [
+        { hexCode: '#FAE225', name: 'gelb', tenantId },
+        { hexCode: '#000000', name: 'schwarz', tenantId },
+        { hexCode: '#FFFFFF', name: 'weiss', tenantId },
+      ],
+    });
+  }
 }
