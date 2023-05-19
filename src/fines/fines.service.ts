@@ -54,4 +54,15 @@ export class FinesService {
       throw new ForbiddenException();
     }
   }
+
+  async createDefaultFineTypes(tenantId: number) {
+    return this.prismaService.fineType.createMany({
+      data: [
+        { name: 'Tunnel', cost: 1, tenantId },
+        { name: 'Doppel Runde', cost: 1, tenantId },
+        { name: 'Zu spät zum Training', cost: 5, tenantId },
+        { name: 'Zu spät zum Spiel', cost: 10, tenantId },
+      ],
+    });
+  }
 }

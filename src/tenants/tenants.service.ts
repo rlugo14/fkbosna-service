@@ -6,6 +6,7 @@ import {
   NotFoundException,
   forwardRef,
 } from '@nestjs/common';
+import { FinesService } from 'src/fines/fines.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/users/users.service';
 
@@ -13,7 +14,6 @@ import { UserService } from 'src/users/users.service';
 export class TenantService {
   constructor(
     private readonly prismaService: PrismaService,
-    @Inject(forwardRef(() => UserService))
     private userService: UserService,
   ) {}
 

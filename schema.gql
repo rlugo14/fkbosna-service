@@ -77,10 +77,10 @@ type Query {
   tenants(skip: Int! = 0, take: Int! = 40): [Tenant!]!
   tenant(slug: String!): Tenant!
   isTenantSlugAvailable(slug: String!): Boolean!
-  color(id: Float!): Color!
-  colors(skip: Int! = 0, take: Int! = 40): [Color!]!
   fineTypes(skip: Int! = 0, take: Int! = 40): [FineType!]!
   fines(skip: Int! = 0, take: Int! = 40): [Fine!]!
+  color(id: Float!): Color!
+  colors(skip: Int! = 0, take: Int! = 40): [Color!]!
 }
 
 type Mutation {
@@ -96,17 +96,17 @@ type Mutation {
   changePassword(newPassword: String!): Boolean!
   createTenant(tenant: CreateTenantInput!): Tenant!
   updateTenant(data: UpdateTenantInput!, where: TenantWhereUniqueInput!): Tenant!
-  createColor(data: CreateColorInput!): Color!
-  createManyColors(colors: CreateManyColorsInput!): BatchResponse!
-  deleteColor(id: Float!): Boolean!
-  deleteManyColors(colors: DeleteManyColorsInput!): BatchResponse!
-  updateColor(data: UpdateColorInput!, where: ColorWhereUniqueInput!): Color!
   createFine(data: CreateFineInput!): Fine!
   createFineType(data: CreateFineTypeInput!): FineType!
   updateFineType(data: UpdateFineTypeInput!): FineType!
   updateFine(data: UpdateFineInput!): Fine!
   deleteFineType(id: Float!): Boolean!
   deleteFine(id: Float!): Boolean!
+  createColor(data: CreateColorInput!): Color!
+  createManyColors(colors: CreateManyColorsInput!): BatchResponse!
+  deleteColor(id: Float!): Boolean!
+  deleteManyColors(colors: DeleteManyColorsInput!): BatchResponse!
+  updateColor(data: UpdateColorInput!, where: ColorWhereUniqueInput!): Color!
 }
 
 input CreatePlayerInput {
@@ -158,29 +158,6 @@ input TenantWhereUniqueInput {
   id: Float!
 }
 
-input CreateColorInput {
-  name: String!
-  hexCode: String!
-}
-
-input CreateManyColorsInput {
-  data: [CreateColorInput!]!
-}
-
-input DeleteManyColorsInput {
-  ids: [Float!]
-  names: [String!]
-}
-
-input UpdateColorInput {
-  name: String
-  hexCode: String
-}
-
-input ColorWhereUniqueInput {
-  id: Float
-}
-
 input CreateFineInput {
   amount: Float!
   playerId: Float!
@@ -203,4 +180,27 @@ input UpdateFineInput {
   playerId: Float
   typeId: Float
   id: Float!
+}
+
+input CreateColorInput {
+  name: String!
+  hexCode: String!
+}
+
+input CreateManyColorsInput {
+  data: [CreateColorInput!]!
+}
+
+input DeleteManyColorsInput {
+  ids: [Float!]
+  names: [String!]
+}
+
+input UpdateColorInput {
+  name: String
+  hexCode: String
+}
+
+input ColorWhereUniqueInput {
+  id: Float
 }
