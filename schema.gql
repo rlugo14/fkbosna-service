@@ -67,6 +67,13 @@ type FineType {
   name: String!
   tenantId: Float!
   deletedAt: DateTime
+  category: FineTypeCategory!
+}
+
+enum FineTypeCategory {
+  GENERAL
+  GAME
+  TRAINING
 }
 
 type Query {
@@ -167,11 +174,13 @@ input CreateFineInput {
 input CreateFineTypeInput {
   name: String!
   cost: Float!
+  category: String!
 }
 
 input UpdateFineTypeInput {
   name: String
   cost: Float
+  category: String
   id: Float!
 }
 

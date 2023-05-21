@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
+import { Field, Int, ObjectType, registerEnumType } from '@nestjs/graphql';
 
 @ObjectType()
 export class FineType {
@@ -16,4 +16,17 @@ export class FineType {
 
   @Field(() => Date, { nullable: true })
   deletedAt?: Date;
+
+  @Field(() => FineTypeCategory)
+  category: 'GENERAL' | 'GAME' | 'TRAINING';
 }
+
+export enum FineTypeCategory {
+  GENERAL = 'GENERAL',
+  GAME = 'GAME',
+  TRAINING = 'TRAINING',
+}
+
+registerEnumType(FineTypeCategory, {
+  name: 'FineTypeCategory',
+});

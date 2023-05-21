@@ -78,15 +78,22 @@ model Token {
 }
 
 model FineType {
-    id        Int       @id @default(autoincrement())
+    id        Int              @id @default(autoincrement())
     cost      Float
     name      String
     fines     Fine[]
-    tenant    Tenant    @relation(fields: [tenantId], references: [id])
+    tenant    Tenant           @relation(fields: [tenantId], references: [id])
     tenantId  Int
     deletedAt DateTime?
+    category  FineTypeCategory
 
     @@map(name: "fine_types")
+}
+
+enum FineTypeCategory {
+    TRAINING
+    GENERAL
+    GAME
 }
 
 model Fine {

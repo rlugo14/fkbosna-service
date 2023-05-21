@@ -1,8 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql';
+import { IsPositive } from 'class-validator';
 
 @InputType()
 export class CreateFineInput {
   @Field()
+  @IsPositive()
   amount: number;
 
   @Field()

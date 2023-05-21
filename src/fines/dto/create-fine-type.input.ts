@@ -1,4 +1,6 @@
 import { Field, InputType } from '@nestjs/graphql';
+import { IsEnum } from 'class-validator';
+import { FineTypeCategory } from '../models/fine-type.model';
 
 @InputType()
 export class CreateFineTypeInput {
@@ -7,4 +9,8 @@ export class CreateFineTypeInput {
 
   @Field()
   cost: number;
+
+  @Field()
+  @IsEnum(FineTypeCategory)
+  category: FineTypeCategory;
 }

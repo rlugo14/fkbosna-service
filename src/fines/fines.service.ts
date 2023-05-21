@@ -58,10 +58,16 @@ export class FinesService {
   async createDefaultFineTypes(tenantId: number) {
     return this.prismaService.fineType.createMany({
       data: [
-        { name: 'Tunnel', cost: 1, tenantId },
-        { name: 'Doppel Runde', cost: 1, tenantId },
-        { name: 'Zu spät zum Training', cost: 5, tenantId },
-        { name: 'Zu spät zum Spiel', cost: 10, tenantId },
+        { name: 'Tunnel', cost: 1, tenantId, category: 'TRAINING' },
+        { name: 'Doppel Runde', cost: 1, tenantId, category: 'TRAINING' },
+        { name: 'Verspätet', cost: 5, tenantId, category: 'TRAINING' },
+        { name: 'Verspätet', cost: 15, tenantId, category: 'GAME' },
+        {
+          name: 'Monatlicher Beitrag',
+          cost: 10,
+          tenantId,
+          category: 'GENERAL',
+        },
       ],
     });
   }

@@ -35,7 +35,7 @@ export class FinesResolver {
   @Query(() => [FineType])
   async fineTypes(
     @Args() playersArgs: ResultArgs,
-    @TenantId(TenantIdFrom.headers) tenantId: number,
+    @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<FineType[]> {
     return this.prismaService.fineType.findMany({
       ...playersArgs,
@@ -48,7 +48,7 @@ export class FinesResolver {
   @Query(() => [Fine])
   async fines(
     @Args() playersArgs: ResultArgs,
-    @TenantId(TenantIdFrom.headers) tenantId: number,
+    @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<Fine[]> {
     return this.prismaService.fine.findMany({
       ...playersArgs,
@@ -86,13 +86,14 @@ export class FinesResolver {
     @Args('data') newFineTypeInput: CreateFineTypeInput,
     @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<FineType> {
-    const { name, cost } = newFineTypeInput;
+    const { name, cost, category } = newFineTypeInput;
 
     return this.prismaService.fineType.create({
       data: {
         name,
         cost,
         tenantId,
+        category,
       },
     });
   }
