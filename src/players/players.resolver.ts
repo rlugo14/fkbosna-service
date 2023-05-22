@@ -21,10 +21,10 @@ import {
 } from './dto/update-player.input';
 import { Color } from '../colors/models/color.model';
 import { ResultArgs } from '../shared/dto/results.args';
-import { AuthGuard } from 'src/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 import { Tenant } from 'src/tenants/models/tenant.model';
-import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
-import { AuthUserId } from 'src/auth-user.decorator';
+import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
+import { AuthUserId } from 'src/decorators/auth-user.decorator';
 import { PlayerService } from './players.service';
 
 @Resolver(() => Player)

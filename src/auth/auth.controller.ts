@@ -1,9 +1,9 @@
-import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
+import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
 import { TokenService } from 'src/tokens/tokens.service';
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from 'src/auth.guard';
-import { Token } from 'src/token.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { Token } from 'src/decorators/token.decorator';
 
 @Controller('auth')
 export class AuthController {

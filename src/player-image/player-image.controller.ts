@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PlayerImageService } from './player-image.service';
-import { AuthGuard } from 'src/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('player-image')
 export class PlayerImageController {

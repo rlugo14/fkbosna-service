@@ -1,4 +1,4 @@
-import { NotFoundException, UseGuards } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
 import {
   Args,
   Mutation,
@@ -6,22 +6,22 @@ import {
   ResolveField,
   Parent,
   Query,
-  Context,
 } from '@nestjs/graphql';
-import { AuthGuard } from 'src/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Fine } from './models/fine.model';
 import { CreateFineInput } from './dto/create-fine.input';
-import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
+import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
 import { FinesService } from './fines.service';
 import { FineType } from './models/fine-type.model';
 import { CreateFineTypeInput } from './dto/create-fine-type.input';
 import { PlayerService } from 'src/players/players.service';
-import { AuthUserId } from '../auth-user.decorator';
+import { AuthUserId } from '../decorators/auth-user.decorator';
 import { ResultArgs } from 'src/shared/dto/results.args';
 import { Player } from 'src/players/models/player.model';
 import { UpdateFineTypeInput } from './dto/update-fine-type.input';
 import { UpdateFineInput } from './dto/update-fine.input';
+import filterNullAndUndefined from 'src/helpers/filterNullAndUndefined';
 
 @Resolver(() => Fine)
 export class FinesResolver {
@@ -111,7 +111,7 @@ export class FinesResolver {
 
     return this.prismaService.fineType.update({
       data: {
-        ...updateFineTypeInput,
+        ...filterNullAndUndefined(updateFineTypeInput),
       },
       where: { id: updateFineTypeInput.id },
     });
@@ -125,9 +125,13 @@ export class FinesResolver {
   ): Promise<Fine> {
     await this.fineService.verifyUserCanManageFine(userId, updateFineInput.id);
 
+    if (updateFineInput.playerId) {
+      await this.playerService.fetchUnique(updateFineInput.playerId);
+    }
+
     return this.prismaService.fine.update({
       data: {
-        ...updateFineInput,
+        ...filterNullAndUndefined(updateFineInput),
       },
       where: { id: updateFineInput.id },
     });
@@ -139,13 +143,10 @@ export class FinesResolver {
     @Args('id') id: number,
     @AuthUserId() userId: number,
   ): Promise<boolean> {
-    try {
-      await this.fineService.verifyUserCanManageFineType(userId, id);
-      await this.prismaService.fineType.delete({ where: { id } });
-      return true;
-    } catch (error) {
-      return false;
-    }
+    await this.fineService.verifyUserCanManageFineType(userId, id);
+    await this.fineService.fetchUniqueFineType(id);
+    await this.prismaService.fineType.delete({ where: { id } });
+    return true;
   }
 
   @UseGuards(AuthGuard)
@@ -154,13 +155,10 @@ export class FinesResolver {
     @Args('id') id: number,
     @AuthUserId() userId: number,
   ): Promise<boolean> {
-    try {
-      await this.fineService.verifyUserCanManageFine(userId, id);
-      await this.prismaService.fine.delete({ where: { id } });
-      return true;
-    } catch (error) {
-      return false;
-    }
+    await this.fineService.verifyUserCanManageFine(userId, id);
+    await this.fineService.fetchUniqueFine(id);
+    await this.prismaService.fine.delete({ where: { id } });
+    return true;
   }
 
   @ResolveField(() => FineType)

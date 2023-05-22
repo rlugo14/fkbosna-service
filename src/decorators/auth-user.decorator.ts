@@ -1,11 +1,11 @@
 import {
   bearerTokenFromGraphql,
   isBearerToken,
-} from './helpers/extractBearerToken';
+} from '../helpers/extractBearerToken';
 import { ExecutionContext } from '@nestjs/common';
 import { createParamDecorator } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { TokenPayload } from './tokens/interfaces/token.payload';
+import { TokenPayload } from '../tokens/interfaces/token.payload';
 
 const jwtService = new JwtService();
 

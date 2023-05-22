@@ -27,9 +27,9 @@ import {
   UpdateColorInput,
 } from './dto/update-color.input';
 import { ResultArgs } from '../shared/dto/results.args';
-import { AuthGuard } from '../auth.guard';
-import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
-import { AuthUserId } from 'src/auth-user.decorator';
+import { AuthGuard } from '../guards/auth.guard';
+import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
+import { AuthUserId } from 'src/decorators/auth-user.decorator';
 
 @Resolver(() => Color)
 export class ColorsResolver {

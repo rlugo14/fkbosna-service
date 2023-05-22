@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TenantImageService } from './tenant-image.service';
-import { AuthGuard } from 'src/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @Controller('tenant-image')
 export class TenantImageController {

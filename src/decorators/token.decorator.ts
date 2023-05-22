@@ -1,7 +1,7 @@
 import {
   bearerTokenFromContext,
   isBearerToken,
-} from './helpers/extractBearerToken';
+} from '../helpers/extractBearerToken';
 import { ExecutionContext } from '@nestjs/common';
 import { createParamDecorator } from '@nestjs/common';
 

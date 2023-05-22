@@ -8,7 +8,7 @@ import {
 import {
   bearerTokenFromContext,
   isBearerToken,
-} from './helpers/extractBearerToken';
+} from '../helpers/extractBearerToken';
 import { JwtService } from '@nestjs/jwt';
 import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 

@@ -4,13 +4,13 @@ import { Tenant } from './models/tenant.model';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ResultArgs } from 'src/shared/dto/results.args';
 import { NotFoundException, UseGuards } from '@nestjs/common';
-import { AuthGuard } from 'src/auth.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 import {
   TenantWhereUniqueInput,
   UpdateTenantInput,
 } from './dto/update-tenant.input';
 import { TenantService } from './tenants.service';
-import { AuthUserId } from 'src/auth-user.decorator';
+import { AuthUserId } from 'src/decorators/auth-user.decorator';
 import { ColorService } from 'src/colors/colors.service';
 import { FinesService } from 'src/fines/fines.service';
 

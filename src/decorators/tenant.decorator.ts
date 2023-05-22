@@ -1,7 +1,7 @@
 import {
   bearerTokenFromHttp,
   tokenFromBearer,
-} from './../helpers/extractBearerToken';
+} from '../helpers/extractBearerToken';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { IncomingHttpHeaders } from 'http2';

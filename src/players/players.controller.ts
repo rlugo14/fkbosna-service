@@ -1,7 +1,7 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { PlayerService } from './players.service';
-import { AuthGuard } from 'src/auth.guard';
-import { TenantId, TenantIdFrom } from 'src/tenants/tenant.decorator';
+import { AuthGuard } from 'src/guards/auth.guard';
+import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
 
 @Controller('players')
 export class PlayerController {
