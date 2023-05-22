@@ -6,6 +6,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { DecodedTokenPayload } from './interfaces/decodedToken.payload';
 
 const MINS_15_IN_SECONDS = 15 * 60;
+const MINS_300_IN_SECONDS = 300 * 60;
 const DAY_1_IN_SECONDS = 1 * 24 * 60 * 60;
 
 @Injectable()
@@ -22,7 +23,9 @@ export class TokenService {
   createLoginToken(payload: TokenPayload) {
     return this.jwtService.signAsync(payload, {
       secret: this.secret,
-      expiresIn: MINS_15_IN_SECONDS,
+      expiresIn: this.appConfigService.appConfig.isProd
+        ? MINS_15_IN_SECONDS
+        : MINS_300_IN_SECONDS,
     });
   }
 
