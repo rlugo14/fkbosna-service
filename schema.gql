@@ -104,6 +104,7 @@ type Mutation {
   createTenant(tenant: CreateTenantInput!): Tenant!
   updateTenant(data: UpdateTenantInput!, where: TenantWhereUniqueInput!): Tenant!
   createFine(data: CreateFineInput!): Fine!
+  createManyFines(fines: CreateManyFinesInput!): BatchResponse!
   createFineType(data: CreateFineTypeInput!): FineType!
   updateFineType(data: UpdateFineTypeInput!): FineType!
   updateFine(data: UpdateFineInput!): Fine!
@@ -169,6 +170,10 @@ input CreateFineInput {
   amount: Float!
   playerId: Float!
   typeId: Float!
+}
+
+input CreateManyFinesInput {
+  data: [CreateFineInput!]!
 }
 
 input CreateFineTypeInput {

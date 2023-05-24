@@ -10,7 +10,7 @@ import {
 import { AuthGuard } from 'src/guards/auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Fine } from './models/fine.model';
-import { CreateFineInput } from './dto/create-fine.input';
+import { CreateFineInput, CreateManyFinesInput } from './dto/create-fine.input';
 import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
 import { FinesService } from './fines.service';
 import { FineType } from './models/fine-type.model';
@@ -22,6 +22,7 @@ import { Player } from 'src/players/models/player.model';
 import { UpdateFineTypeInput } from './dto/update-fine-type.input';
 import { UpdateFineInput } from './dto/update-fine.input';
 import filterNullAndUndefined from 'src/helpers/filterNullAndUndefined';
+import { BatchResponse } from 'src/shared/dto/batch-response.model';
 
 @Resolver(() => Fine)
 export class FinesResolver {
@@ -81,6 +82,38 @@ export class FinesResolver {
   }
 
   @UseGuards(AuthGuard)
+  @Mutation(() => BatchResponse)
+  async createManyFines(
+    @Args('fines') newFinesInput: CreateManyFinesInput,
+    @TenantId(TenantIdFrom.token) tenantId: number,
+    @AuthUserId() userId: number,
+  ): Promise<BatchResponse> {
+    const { data } = newFinesInput;
+    const createManyDataPromises = data.map(async (input) => {
+      await this.playerService.verifyUserCanManagePlayer(
+        userId,
+        input.playerId,
+      );
+      const fineType = await this.fineService.fetchUniqueFineType(input.typeId);
+
+      return {
+        playerId: input.playerId,
+        amount: input.amount,
+        typeId: input.typeId,
+        tenantId,
+        total: input.amount * fineType.cost,
+        createdAt: new Date(Date.now()),
+      };
+    });
+
+    const createManyData = await Promise.all(createManyDataPromises);
+
+    return this.prismaService.fine.createMany({
+      data: createManyData,
+    });
+  }
+
+  @UseGuards(AuthGuard)
   @Mutation(() => FineType)
   async createFineType(
     @Args('data') newFineTypeInput: CreateFineTypeInput,
@@ -124,14 +157,24 @@ export class FinesResolver {
     @AuthUserId() userId: number,
   ): Promise<Fine> {
     await this.fineService.verifyUserCanManageFine(userId, updateFineInput.id);
-
     if (updateFineInput.playerId) {
       await this.playerService.fetchUnique(updateFineInput.playerId);
     }
 
+    let newTotal: number;
+
+    if (updateFineInput.amount) {
+      const fine = await this.fineService.fetchUniqueFine(updateFineInput.id);
+      const fineType = await this.fineService.fetchUniqueFineType(fine.typeId);
+      newTotal =
+        fine.total + fineType.cost * (updateFineInput.amount - fine.amount);
+    } else if (updateFineInput.amount === 0) {
+      newTotal = 0;
+    }
+
     return this.prismaService.fine.update({
       data: {
-        ...filterNullAndUndefined(updateFineInput),
+        ...filterNullAndUndefined({ ...updateFineInput, total: newTotal }),
       },
       where: { id: updateFineInput.id },
     });
