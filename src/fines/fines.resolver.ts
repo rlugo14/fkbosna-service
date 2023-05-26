@@ -20,9 +20,14 @@ import { AuthUserId } from '../decorators/auth-user.decorator';
 import { ResultArgs } from 'src/shared/dto/results.args';
 import { Player } from 'src/players/models/player.model';
 import { UpdateFineTypeInput } from './dto/update-fine-type.input';
-import { UpdateFineInput } from './dto/update-fine.input';
+import {
+  UpdateFineInput,
+  UpsertFineInput,
+  UpsertManyFinesInput,
+} from './dto/update-fine.input';
 import filterNullAndUndefined from 'src/helpers/filterNullAndUndefined';
 import { BatchResponse } from 'src/shared/dto/batch-response.model';
+import { Prisma } from '@prisma/client';
 
 @Resolver(() => Fine)
 export class FinesResolver {
@@ -69,6 +74,16 @@ export class FinesResolver {
     await this.playerService.verifyUserCanManagePlayer(userId, playerId);
     const fineType = await this.fineService.fetchUniqueFineType(typeId);
 
+    const existingFineByType =
+      await this.fineService.fetchFineByFineTypeInCurrentMonth(fineType.id);
+
+    if (existingFineByType) {
+      return this.prismaService.fine.update({
+        data: { amount },
+        where: { id: existingFineByType.id },
+      });
+    }
+
     return this.prismaService.fine.create({
       data: {
         playerId,
@@ -89,27 +104,44 @@ export class FinesResolver {
     @AuthUserId() userId: number,
   ): Promise<BatchResponse> {
     const { data } = newFinesInput;
-    const createManyDataPromises = data.map(async (input) => {
+    const transactionPromises: {
+      createManyData: Prisma.FineCreateManyInput[];
+      updates: Promise<Fine>[];
+    } = { createManyData: [], updates: [] };
+
+    for (const input of data) {
       await this.playerService.verifyUserCanManagePlayer(
         userId,
         input.playerId,
       );
+
       const fineType = await this.fineService.fetchUniqueFineType(input.typeId);
+      const existingFineByType =
+        await this.fineService.fetchFineByFineTypeInCurrentMonth(fineType.id);
 
-      return {
-        playerId: input.playerId,
-        amount: input.amount,
-        typeId: input.typeId,
-        tenantId,
-        total: input.amount * fineType.cost,
-        createdAt: new Date(Date.now()),
-      };
-    });
+      if (existingFineByType) {
+        transactionPromises.updates.push(
+          this.prismaService.fine.update({
+            data: { amount: input.amount },
+            where: { id: existingFineByType.id },
+          }),
+        );
+      } else {
+        transactionPromises.createManyData.push({
+          playerId: input.playerId,
+          amount: input.amount,
+          typeId: input.typeId,
+          tenantId,
+          total: input.amount * fineType.cost,
+          createdAt: new Date(Date.now()),
+        });
+      }
+    }
 
-    const createManyData = await Promise.all(createManyDataPromises);
+    await Promise.all(transactionPromises.updates);
 
     return this.prismaService.fine.createMany({
-      data: createManyData,
+      data: transactionPromises.createManyData,
     });
   }
 

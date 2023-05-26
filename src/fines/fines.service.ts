@@ -37,6 +37,22 @@ export class FinesService {
     return foundFine;
   }
 
+  async fetchFineByFineTypeInCurrentMonth(fineTypeId: number) {
+    const currentDate = new Date(Date.now());
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    const monthFirstDay = new Date(currentYear, currentMonth, 1);
+    const monthLastDay = new Date(currentYear, currentMonth + 1, 0);
+
+    return this.prismaService.fine.findFirst({
+      where: {
+        typeId: fineTypeId,
+        createdAt: { gte: monthFirstDay, lte: monthLastDay },
+      },
+    });
+  }
+
   async verifyUserCanManageFine(userId: number, fineTypeId: number) {
     const user = await this.userService.fetchUniqueById(userId);
     const targetFine = await this.fetchUniqueFine(fineTypeId);
