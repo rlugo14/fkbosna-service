@@ -84,8 +84,8 @@ type Query {
   tenants(skip: Int! = 0, take: Int! = 40): [Tenant!]!
   tenant(slug: String!): Tenant!
   isTenantSlugAvailable(slug: String!): Boolean!
-  fineTypes(skip: Int! = 0, take: Int! = 40): [FineType!]!
-  fines(skip: Int! = 0, take: Int! = 40): [Fine!]!
+  fineTypes: [FineType!]!
+  fines(month: Int, year: Int): [Fine!]!
   color(id: Float!): Color!
   colors(skip: Int! = 0, take: Int! = 40): [Color!]!
 }

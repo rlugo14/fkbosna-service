@@ -28,6 +28,8 @@ import {
 import filterNullAndUndefined from 'src/helpers/filterNullAndUndefined';
 import { BatchResponse } from 'src/shared/dto/batch-response.model';
 import { Prisma } from '@prisma/client';
+import { MonthFilterArgs } from 'src/shared/dto/month-filter.args';
+import getMonthLimits from 'src/helpers/getMonthLimits';
 
 @Resolver(() => Fine)
 export class FinesResolver {
@@ -40,11 +42,9 @@ export class FinesResolver {
   @UseGuards(AuthGuard)
   @Query(() => [FineType])
   async fineTypes(
-    @Args() playersArgs: ResultArgs,
     @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<FineType[]> {
     return this.prismaService.fineType.findMany({
-      ...playersArgs,
       where: { tenantId, deletedAt: null },
       include: { tenant: true },
     });
@@ -53,12 +53,29 @@ export class FinesResolver {
   @UseGuards(AuthGuard)
   @Query(() => [Fine])
   async fines(
-    @Args() playersArgs: ResultArgs,
+    @Args() monthFilterArgs: MonthFilterArgs,
     @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<Fine[]> {
+    const createdAt: { gte: Date; lte: Date } = {
+      gte: undefined,
+      lte: undefined,
+    };
+    if (
+      monthFilterArgs.month !== undefined &&
+      monthFilterArgs.year !== undefined
+    ) {
+      const month = monthFilterArgs.month;
+      const year = monthFilterArgs.year;
+      const monthLimits = getMonthLimits(month, year);
+      createdAt.gte = monthLimits.firstDay;
+      createdAt.lte = monthLimits.lastDay;
+    }
     return this.prismaService.fine.findMany({
-      ...playersArgs,
-      where: { tenantId, deletedAt: null },
+      where: {
+        tenantId,
+        deletedAt: null,
+        createdAt,
+      },
       include: { tenant: true },
     });
   }

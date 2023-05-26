@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import getMonthLimits from 'src/helpers/getMonthLimits';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserService } from 'src/users/users.service';
 
@@ -42,13 +43,15 @@ export class FinesService {
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
 
-    const monthFirstDay = new Date(currentYear, currentMonth, 1);
-    const monthLastDay = new Date(currentYear, currentMonth + 1, 0);
+    const currentMonthLimits = getMonthLimits(currentMonth, currentYear);
 
     return this.prismaService.fine.findFirst({
       where: {
         typeId: fineTypeId,
-        createdAt: { gte: monthFirstDay, lte: monthLastDay },
+        createdAt: {
+          gte: currentMonthLimits.firstDay,
+          lte: currentMonthLimits.lastDay,
+        },
       },
     });
   }
