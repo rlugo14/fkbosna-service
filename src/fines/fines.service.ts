@@ -38,7 +38,10 @@ export class FinesService {
     return foundFine;
   }
 
-  async fetchFineByFineTypeInCurrentMonth(fineTypeId: number) {
+  async fetchPlayerFineByFineTypeInCurrentMonth(
+    playerId: number,
+    fineTypeId: number,
+  ) {
     const currentDate = new Date(Date.now());
     const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
@@ -48,6 +51,7 @@ export class FinesService {
     return this.prismaService.fine.findFirst({
       where: {
         typeId: fineTypeId,
+        playerId,
         createdAt: {
           gte: currentMonthLimits.firstDay,
           lte: currentMonthLimits.lastDay,

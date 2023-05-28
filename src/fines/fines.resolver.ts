@@ -92,7 +92,10 @@ export class FinesResolver {
     const fineType = await this.fineService.fetchUniqueFineType(typeId);
 
     const existingFineByType =
-      await this.fineService.fetchFineByFineTypeInCurrentMonth(fineType.id);
+      await this.fineService.fetchPlayerFineByFineTypeInCurrentMonth(
+        playerId,
+        fineType.id,
+      );
 
     if (existingFineByType) {
       return this.prismaService.fine.update({
@@ -134,7 +137,10 @@ export class FinesResolver {
 
       const fineType = await this.fineService.fetchUniqueFineType(input.typeId);
       const existingFineByType =
-        await this.fineService.fetchFineByFineTypeInCurrentMonth(fineType.id);
+        await this.fineService.fetchPlayerFineByFineTypeInCurrentMonth(
+          input.playerId,
+          fineType.id,
+        );
 
       if (existingFineByType) {
         transactionPromises.updates.push(
@@ -157,9 +163,11 @@ export class FinesResolver {
 
     await Promise.all(transactionPromises.updates);
 
-    return this.prismaService.fine.createMany({
+    const res = await this.prismaService.fine.createMany({
       data: transactionPromises.createManyData,
     });
+
+    return res;
   }
 
   @UseGuards(AuthGuard)
