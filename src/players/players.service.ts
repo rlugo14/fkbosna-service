@@ -103,4 +103,10 @@ export class PlayerService {
       this.tenant.slug,
     );
   };
+
+  async fetchAllPlayersFromTenant(tenantId: number) {
+    return this.prismaService.player.findMany({
+      where: { tenantId, deletedAt: null },
+    });
+  }
 }

@@ -10,7 +10,12 @@ import {
 import { AuthGuard } from 'src/guards/auth.guard';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Fine } from './models/fine.model';
-import { CreateFineInput, CreateManyFinesInput } from './dto/create-fine.input';
+import {
+  CreatePlayerFineInput,
+  CreateManyPlayerFinesInput,
+  CreateManyFinesInput,
+  UpsertBatchResponse,
+} from './dto/create-fine.input';
 import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
 import { FinesService } from './fines.service';
 import { FineType } from './models/fine-type.model';
@@ -20,11 +25,7 @@ import { AuthUserId } from '../decorators/auth-user.decorator';
 import { ResultArgs } from 'src/shared/dto/results.args';
 import { Player } from 'src/players/models/player.model';
 import { UpdateFineTypeInput } from './dto/update-fine-type.input';
-import {
-  UpdateFineInput,
-  UpsertFineInput,
-  UpsertManyFinesInput,
-} from './dto/update-fine.input';
+import { UpdateFineInput } from './dto/update-fine.input';
 import filterNullAndUndefined from 'src/helpers/filterNullAndUndefined';
 import { BatchResponse } from 'src/shared/dto/batch-response.model';
 import { Prisma } from '@prisma/client';
@@ -83,7 +84,7 @@ export class FinesResolver {
   @UseGuards(AuthGuard)
   @Mutation(() => Fine)
   async createFine(
-    @Args('data') newFineInput: CreateFineInput,
+    @Args('data') newFineInput: CreatePlayerFineInput,
     @TenantId(TenantIdFrom.token) tenantId: number,
     @AuthUserId() userId: number,
   ): Promise<Fine> {
@@ -117,57 +118,86 @@ export class FinesResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Mutation(() => BatchResponse)
+  @Mutation(() => UpsertBatchResponse)
   async createManyFines(
+    @Args('fines') newFinesInput: CreateManyPlayerFinesInput,
+    @TenantId(TenantIdFrom.token) tenantId: number,
+    @AuthUserId() userId: number,
+  ): Promise<UpsertBatchResponse> {
+    const { data } = newFinesInput;
+    const transactionPromises =
+      await this.fineService.createUpdateOrCreatePlayersFineTransactions(
+        data,
+        userId,
+        tenantId,
+      );
+
+    const response: {
+      created: Prisma.BatchPayload;
+      updated: Prisma.BatchPayload;
+    } = { created: { count: 0 }, updated: { count: 0 } };
+
+    response.updated = {
+      count: (await Promise.all(transactionPromises.updates)).length,
+    };
+
+    response.created = await this.prismaService.fine.createMany({
+      data: transactionPromises.createManyData,
+    });
+
+    return response;
+  }
+
+  @UseGuards(AuthGuard)
+  @Mutation(() => UpsertBatchResponse)
+  async createManyFinesForAllPlayers(
     @Args('fines') newFinesInput: CreateManyFinesInput,
     @TenantId(TenantIdFrom.token) tenantId: number,
     @AuthUserId() userId: number,
-  ): Promise<BatchResponse> {
+  ): Promise<UpsertBatchResponse> {
     const { data } = newFinesInput;
+    const tenantPlayers = await this.playerService.fetchAllPlayersFromTenant(
+      tenantId,
+    );
+
     const transactionPromises: {
       createManyData: Prisma.FineCreateManyInput[];
       updates: Promise<Fine>[];
     } = { createManyData: [], updates: [] };
 
-    for (const input of data) {
-      await this.playerService.verifyUserCanManagePlayer(
-        userId,
-        input.playerId,
-      );
-
-      const fineType = await this.fineService.fetchUniqueFineType(input.typeId);
-      const existingFineByType =
-        await this.fineService.fetchPlayerFineByFineTypeInCurrentMonth(
-          input.playerId,
-          fineType.id,
-        );
-
-      if (existingFineByType) {
-        transactionPromises.updates.push(
-          this.prismaService.fine.update({
-            data: { amount: input.amount },
-            where: { id: existingFineByType.id },
-          }),
-        );
-      } else {
-        transactionPromises.createManyData.push({
-          playerId: input.playerId,
-          amount: input.amount,
-          typeId: input.typeId,
+    for (const player of tenantPlayers) {
+      const transactions =
+        await this.fineService.createUpdateOrCreateFinesTransactions(
+          data,
+          player.id,
+          userId,
           tenantId,
-          total: input.amount * fineType.cost,
-          createdAt: new Date(Date.now()),
-        });
-      }
+        );
+
+      transactionPromises.createManyData = [
+        ...transactionPromises.createManyData,
+        ...transactions.createManyData,
+      ];
+      transactionPromises.updates = [
+        ...transactionPromises.updates,
+        ...transactions.updates,
+      ];
     }
 
-    await Promise.all(transactionPromises.updates);
+    const response: {
+      created: Prisma.BatchPayload;
+      updated: Prisma.BatchPayload;
+    } = { created: { count: 0 }, updated: { count: 0 } };
 
-    const res = await this.prismaService.fine.createMany({
+    response.updated = {
+      count: (await Promise.all(transactionPromises.updates)).length,
+    };
+
+    response.created = await this.prismaService.fine.createMany({
       data: transactionPromises.createManyData,
     });
 
-    return res;
+    return response;
   }
 
   @UseGuards(AuthGuard)

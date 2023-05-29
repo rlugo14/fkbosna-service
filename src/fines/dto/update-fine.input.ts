@@ -1,4 +1,7 @@
-import { CreateFineInput, CreateManyFinesInput } from './create-fine.input';
+import {
+  CreatePlayerFineInput,
+  CreateManyPlayerFinesInput,
+} from './create-fine.input';
 import {
   Field,
   InputType,
@@ -7,13 +10,13 @@ import {
 } from '@nestjs/graphql';
 
 @InputType()
-export class UpdateFineInput extends PartialType(CreateFineInput) {
+export class UpdateFineInput extends PartialType(CreatePlayerFineInput) {
   @Field()
   id: number;
 }
 
 @InputType()
-export class UpsertFineInput extends PartialType(CreateFineInput) {
+export class UpsertFineInput extends PartialType(CreatePlayerFineInput) {
   @Field({ nullable: true })
   id?: number;
 }
@@ -26,5 +29,5 @@ export class UpsertManyFinesInput {
 
 export const CreateOrUpsertManyFinesInput = createUnionType({
   name: 'CreateOrUpsertManyFinesInput',
-  types: () => [CreateManyFinesInput, UpsertManyFinesInput] as const,
+  types: () => [CreateManyPlayerFinesInput, UpsertManyFinesInput] as const,
 });

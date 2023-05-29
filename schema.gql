@@ -61,6 +61,11 @@ type Fine {
   player: Player!
 }
 
+type UpsertBatchResponse {
+  created: BatchResponse!
+  updated: BatchResponse!
+}
+
 type FineType {
   id: Int!
   cost: Float!
@@ -103,8 +108,9 @@ type Mutation {
   changePassword(newPassword: String!): Boolean!
   createTenant(tenant: CreateTenantInput!): Tenant!
   updateTenant(data: UpdateTenantInput!, where: TenantWhereUniqueInput!): Tenant!
-  createFine(data: CreateFineInput!): Fine!
-  createManyFines(fines: CreateManyFinesInput!): BatchResponse!
+  createFine(data: CreatePlayerFineInput!): Fine!
+  createManyFines(fines: CreateManyPlayerFinesInput!): UpsertBatchResponse!
+  createManyFinesForAllPlayers(fines: CreateManyFinesInput!): UpsertBatchResponse!
   createFineType(data: CreateFineTypeInput!): FineType!
   updateFineType(data: UpdateFineTypeInput!): FineType!
   updateFine(data: UpdateFineInput!): Fine!
@@ -166,14 +172,23 @@ input TenantWhereUniqueInput {
   id: Float!
 }
 
-input CreateFineInput {
+input CreatePlayerFineInput {
   amount: Float!
   playerId: Float!
   typeId: Float!
 }
 
+input CreateManyPlayerFinesInput {
+  data: [CreatePlayerFineInput!]!
+}
+
 input CreateManyFinesInput {
   data: [CreateFineInput!]!
+}
+
+input CreateFineInput {
+  amount: Float!
+  typeId: Float!
 }
 
 input CreateFineTypeInput {
