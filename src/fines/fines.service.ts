@@ -203,7 +203,10 @@ export class FinesService {
     fineCost: number,
   ) {
     if (oldAmount === newAmount) return oldTotal;
-    return oldTotal + newAmount * fineCost;
+    if (newAmount === 0) return 0;
+    if (oldAmount > newAmount) return oldTotal - newAmount * fineCost;
+    if (oldAmount < newAmount) return oldTotal + newAmount * fineCost;
+    return 0;
   }
 
   private calculateNewAmount(oldAmount: number, newAmount: number) {
