@@ -107,20 +107,16 @@ export class FinesService {
       );
 
       if (existingFineByType) {
-        const newAmount = this.calculateNewAmount(
-          existingFineByType.amount,
-          input.amount,
-        );
+        const newAmount = existingFineByType.amount + input.amount;
+
+        const newTotal: number =
+          existingFineByType.total + input.amount * fineType.cost;
+
         transactionPromises.updates.push(
           this.prismaService.fine.update({
             data: {
               amount: newAmount,
-              total: this.calculateNewTotal(
-                existingFineByType.amount,
-                newAmount,
-                existingFineByType.total,
-                fineType.cost,
-              ),
+              total: newTotal,
             },
             where: { id: existingFineByType.id },
           }),
@@ -163,20 +159,25 @@ export class FinesService {
       );
 
       if (existingFineByType) {
-        const newAmount = this.calculateNewAmount(
-          existingFineByType.amount,
-          input.amount,
-        );
+        let newAmount: number;
+        if (existingFineByType.amount === input.amount)
+          newAmount = existingFineByType.amount;
+        else
+          newAmount =
+            existingFineByType.amount -
+            (existingFineByType.amount - input.amount);
+
+        const amountDiff = existingFineByType.amount - newAmount;
+        let newTotal: number;
+        if (newAmount === 0) newTotal = 0;
+        else if (amountDiff === 0) newTotal = existingFineByType.total;
+        else newTotal = existingFineByType.total - amountDiff * fineType.cost;
+
         transactionPromises.updates.push(
           this.prismaService.fine.update({
             data: {
               amount: newAmount,
-              total: this.calculateNewTotal(
-                existingFineByType.amount,
-                newAmount,
-                existingFineByType.total,
-                fineType.cost,
-              ),
+              total: newTotal,
             },
             where: { id: existingFineByType.id },
           }),
