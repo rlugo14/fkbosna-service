@@ -1,5 +1,5 @@
 import { AppConfigService } from './../shared/services/app-config.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectAwsService } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 import { v4 as uuid } from 'uuid';
@@ -14,6 +14,19 @@ export class S3ManagerService {
     private readonly configService: AppConfigService,
   ) {
     this.bucket = configService.awsConfig.bucketName;
+  }
+
+  async getObject(key: string) {
+    const getParams = {
+      Bucket: this.bucket,
+      Key: key,
+    };
+    try {
+      const result = await this.s3.getObject(getParams).promise();
+      return result.$response.data;
+    } catch (error) {
+      return;
+    }
   }
 
   async listBucketContents(bucket: string) {
@@ -60,7 +73,7 @@ export class S3ManagerService {
     return { uploadedFileName: fileName };
   }
 
-  private getFileKey = (tenantSlug: string, fileName: string) => {
+  public getFileKey = (tenantSlug: string, fileName: string) => {
     const isDevEnv = this.configService.appConfig.isDev;
     return `${isDevEnv ? 'development' : tenantSlug}/${fileName}`;
   };

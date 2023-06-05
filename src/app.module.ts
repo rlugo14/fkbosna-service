@@ -20,6 +20,7 @@ import * as Joi from 'joi';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SlackModule } from 'nestjs-slack';
 import { FinesModule } from './fines/fines.module';
+import { InvoiceModule } from './invoice/invoice.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { FinesModule } from './fines/fines.module';
     TenantsModule,
     TenantImageModule,
     FinesModule,
+    InvoiceModule,
   ],
   controllers: [],
   providers: [],

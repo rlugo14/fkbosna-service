@@ -30,3 +30,16 @@ export enum FineTypeCategory {
 registerEnumType(FineTypeCategory, {
   name: 'FineTypeCategory',
 });
+
+export const fineCategoryToLabel = (category: FineTypeCategory | string) => {
+  switch (category) {
+    case FineTypeCategory.GAME:
+      return 'Spiel';
+    case FineTypeCategory.TRAINING:
+      return 'Training';
+    case FineTypeCategory.GENERAL:
+      return 'Allgemein';
+    default:
+      break;
+  }
+};
