@@ -18,6 +18,8 @@ export class InvoiceService {
   private invoiceMonth: string;
   private invoiceYear: string;
   private withDetails: boolean;
+  private buffers: any[];
+  private pdfData: Buffer;
   constructor(
     private readonly httpService: HttpService,
     private readonly s3: S3ManagerService,
@@ -44,19 +46,16 @@ export class InvoiceService {
     await this.createDocumentHeader(tenantName, tenantSlug, tenantImageName);
     players.forEach((player) => {
       const total = this.calculateTotal(fines, player);
-      this.createPlayerHeader(doc, player, total);
+      this.createPlayerHeader(player, total);
       if (total > 0 && withDetails) {
         Object.keys(fines[player.id]).forEach((categoryKey) => {
-          const { currX, currY } = this.nextPageIfLessRemainingSpaceThan(
-            doc,
-            70,
-          );
-          doc
+          const { currX, currY } = this.nextPageIfLessRemainingSpaceThan(70);
+          this.doc
             .fontSize(12)
             .font('Helvetica')
             .text(fineCategoryToLabel(categoryKey), { indent: 16 });
-          doc.moveDown(0.2);
-          doc
+          this.doc.moveDown(0.2);
+          this.doc
             .moveTo(currX, currY - 5)
             .lineTo(currX + 470, currY - 5)
             .lineWidth(0.5)
@@ -64,11 +63,11 @@ export class InvoiceService {
           const playerFines = fines[player.id][categoryKey] as FineData[];
           playerFines.forEach((fine, idx) => {
             if (fine.amount > 0) {
-              this.nextPageIfLessRemainingSpaceThan(doc, 70);
-              doc.moveDown(0.5);
-              doc.fontSize(8).text(fine.name, { indent: 32 });
-              doc.moveDown(0.5);
-              doc
+              this.nextPageIfLessRemainingSpaceThan(70);
+              this.doc.moveDown(0.5);
+              this.doc.fontSize(8).text(fine.name, { indent: 32 });
+              this.doc.moveDown(0.5);
+              this.doc
                 .text(`${fine.amount} x € ${getNormalizedPriceDe(fine.cost)}`, {
                   indent: 40,
                   continued: true,
@@ -77,7 +76,7 @@ export class InvoiceService {
                   indent: 32,
                   align: 'right',
                 });
-              if (idx === playerFines.length - 1) doc.moveDown(2);
+              if (idx === playerFines.length - 1) this.doc.moveDown(2);
             }
           });
         });
@@ -104,40 +103,33 @@ export class InvoiceService {
     else return 0;
   }
 
-  private createPlayerHeader(
-    doc: PDFKit.PDFDocument,
-    player: Player,
-    total: number,
-  ) {
-    const { currX, currY } = this.nextPageIfLessRemainingSpaceThan(doc, 60);
+  private createPlayerHeader(player: Player, total: number) {
+    const { currX, currY } = this.nextPageIfLessRemainingSpaceThan(60);
 
-    doc
+    this.doc
       .fontSize(12)
       .font(this.withDetails ? 'Helvetica-Bold' : 'Helvetica')
       .text(`${player.firstname} ${player.lastname}`, currX, currY, {
         continued: true,
       });
     const lineYOffset = currY - 5;
-    doc
+    this.doc
       .moveTo(this.withDetails ? currX - 30 : currX, lineYOffset)
       .lineTo(this.withDetails ? currX + 500 : currX + 470, lineYOffset)
       .lineWidth(this.withDetails ? 1 : 0.5)
       .stroke();
 
-    doc.text(`€ ${getNormalizedPriceDe(total)}`, { align: 'right' });
-    doc.moveDown(1);
+    this.doc.text(`€ ${getNormalizedPriceDe(total)}`, { align: 'right' });
+    this.doc.moveDown(1);
   }
 
-  private nextPageIfLessRemainingSpaceThan(
-    doc: PDFKit.PDFDocument,
-    remainingSpace: number,
-  ) {
-    let currX = doc.x;
-    let currY = doc.y;
-    if (currY >= doc.page.maxY() - remainingSpace) {
-      doc.addPage();
-      currX = doc.page.margins.left;
-      currY = doc.page.margins.top;
+  private nextPageIfLessRemainingSpaceThan(remainingSpace: number) {
+    let currX = this.doc.x;
+    let currY = this.doc.y;
+    if (currY >= this.doc.page.maxY() - remainingSpace) {
+      this.doc.addPage();
+      currX = this.doc.page.margins.left;
+      currY = this.doc.page.margins.top;
     }
     return { currX, currY };
   }

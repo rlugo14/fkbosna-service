@@ -15,6 +15,8 @@ import getMonthNameDe from 'src/helpers/getMonthNameDe';
 import { InvoiceService } from './invoice.service';
 import * as PDFDocument from 'pdfkit';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { createReadStream } from 'fs';
+import { Readable } from 'stream';
 
 @UseGuards(AuthGuard)
 @Controller('invoice')
@@ -29,8 +31,6 @@ export class InvoiceController {
     @Param('year') year: string,
     @Body() body: CreateInvoiceInput,
   ) {
-    const doc = new PDFDocument({ bufferPages: true });
-
     res.setHeader(
       'Content-Disposition',
       `attachment; filename=Abrechnung-${getMonthNameDe(month)}-${year}${
@@ -38,11 +38,10 @@ export class InvoiceController {
       }.pdf`,
     );
 
-    doc.on('data', (chunk) => res.write(chunk));
-    doc.on('end', () => {
-      res.send();
-    });
+    const doc = new PDFDocument({ bufferPages: true });
 
-    this.invoiceService.createPlayersInvoice(doc, body, month, year);
+    await this.invoiceService.createPlayersInvoice(doc, body, month, year);
+
+    doc.pipe(res);
   }
 }
