@@ -11,6 +11,7 @@ import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { S3ManagerService } from 'src/s3-manager/s3-manager.service';
 import getMonthNameDe from 'src/helpers/getMonthNameDe';
+import * as PDFDocument from 'pdfkit';
 
 @Injectable()
 export class InvoiceService {
@@ -18,19 +19,16 @@ export class InvoiceService {
   private invoiceMonth: string;
   private invoiceYear: string;
   private withDetails: boolean;
-  private buffers: any[];
-  private pdfData: Buffer;
   constructor(
     private readonly httpService: HttpService,
     private readonly s3: S3ManagerService,
   ) {}
   async createPlayersInvoice(
-    doc: PDFKit.PDFDocument,
     createInvoiceInput: CreateInvoiceInput,
     invoiceMonth: string,
     invoiceYear: string,
   ) {
-    this.doc = doc;
+    this.doc = new PDFDocument({ bufferPages: true });
     this.invoiceMonth = invoiceMonth;
     this.invoiceYear = invoiceYear;
     const {
@@ -83,7 +81,13 @@ export class InvoiceService {
       }
     });
     this.createPagesFooter();
-    doc.end();
+    this.doc.end();
+    const fileName = `Abrechnung-${getMonthNameDe(
+      invoiceMonth,
+    )}-${invoiceYear}${withDetails ? '-detalliert' : ''}.pdf`;
+
+    const upload = await this.s3.uploadPdf(this.doc, fileName, tenantSlug);
+    return this.s3.preSignUrl(upload.Key);
   }
 
   private calculateTotal(

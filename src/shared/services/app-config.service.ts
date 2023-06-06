@@ -11,12 +11,14 @@ export class AppConfigService {
     const secretKey = this.getString('AWS_SECRET_ACCESS_KEY');
     const region = this.getString('AWS_REGION');
     const bucketName = this.getString('BUCKET_NAME');
+    const invoiceFolderName = this.getString('INVOICE_FOLDER_NAME');
 
     return {
       keyId,
       secretKey,
       region,
       bucketName,
+      invoiceFolderName,
       bucketBaseUrl: `https://${bucketName}.s3.${region}.amazonaws.com`,
     };
   }

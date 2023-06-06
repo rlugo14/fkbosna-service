@@ -4,6 +4,7 @@ import { InjectAwsService } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 import { v4 as uuid } from 'uuid';
 import extractFileExtension from 'src/helpers/extractFileExtension';
+import { PutObjectRequest } from 'aws-sdk/clients/s3';
 
 @Injectable()
 export class S3ManagerService {
@@ -27,6 +28,31 @@ export class S3ManagerService {
     } catch (error) {
       return;
     }
+  }
+
+  async preSignUrl(key: string) {
+    return this.s3.getSignedUrlPromise('getObject', {
+      Bucket: this.bucket,
+      Key: key,
+      Expires: 1000,
+    });
+  }
+
+  async uploadPdf(
+    doc: PDFKit.PDFDocument,
+    fileName: string,
+    tenantSlug: string,
+  ) {
+    const invoiceFolderName = this.configService.awsConfig.invoiceFolderName;
+    const key = `${invoiceFolderName}/${tenantSlug}/${fileName}`;
+    const params: PutObjectRequest = {
+      Bucket: this.bucket,
+      Key: key,
+      Body: doc,
+      ContentType: 'application/pdf',
+    };
+
+    return this.s3.upload(params).promise();
   }
 
   async listBucketContents(bucket: string) {
