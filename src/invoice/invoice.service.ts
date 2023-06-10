@@ -8,10 +8,12 @@ import {
 import getNormalizedPriceDe from 'src/helpers/getNormalizedPriceDe';
 import { fineCategoryToLabel } from 'src/fines/models/fine-type.model';
 import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 import { S3ManagerService } from 'src/s3-manager/s3-manager.service';
 import getMonthNameDe from 'src/helpers/getMonthNameDe';
 import * as PDFDocument from 'pdfkit';
+import * as sharp from 'sharp';
+import type { Readable } from 'stream';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class InvoiceService {
@@ -160,14 +162,23 @@ export class InvoiceService {
     const posY = this.doc.y - 20;
 
     this.doc.image(matdienstImageBuffer, posX, posY, { width: 60 });
-    if (tenantLogo)
+    if (tenantLogo && tenantLogo.Body)
       try {
-        this.doc.image(tenantLogo.Body, posX + 410, posY, {
+        const tenantLogoContentType = tenantLogo.ContentType;
+        const imageMustBeConverted =
+          tenantLogoContentType !== 'image/png' &&
+          tenantLogoContentType !== 'image/jpg';
+        const tenantLogoBuffer = tenantLogo.Body as Buffer;
+
+        const image = imageMustBeConverted
+          ? await sharp(tenantLogoBuffer).toFormat('png').toBuffer()
+          : tenantLogo.Body;
+
+        this.doc.image(image, posX + 410, posY, {
           width: 60,
           align: 'right',
         });
       } catch (error) {
-        console.log('ERROR HERE');
         console.log('error was: ', error);
       }
 
