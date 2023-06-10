@@ -161,10 +161,15 @@ export class InvoiceService {
 
     this.doc.image(matdienstImageBuffer, posX, posY, { width: 60 });
     if (tenantLogo)
-      this.doc.image(tenantLogo.Body, posX + 410, posY, {
-        width: 60,
-        align: 'right',
-      });
+      try {
+        this.doc.image(tenantLogo.Body, posX + 410, posY, {
+          width: 60,
+          align: 'right',
+        });
+      } catch (error) {
+        console.log('ERROR HERE');
+        console.log('error was: ', error);
+      }
 
     this.doc.moveDown(6);
     this.doc.font('Helvetica-Bold').fontSize(20).text(tenantName);
