@@ -12,7 +12,6 @@ import { S3ManagerService } from 'src/s3-manager/s3-manager.service';
 import getMonthNameDe from 'src/helpers/getMonthNameDe';
 import * as PDFDocument from 'pdfkit';
 import * as sharp from 'sharp';
-import type { Readable } from 'stream';
 import { firstValueFrom } from 'rxjs';
 
 @Injectable()

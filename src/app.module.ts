@@ -21,9 +21,22 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SlackModule } from 'nestjs-slack';
 import { FinesModule } from './fines/fines.module';
 import { InvoiceModule } from './invoice/invoice.module';
+import { LoggerModule } from 'nestjs-pino';
+import { ApmModule } from 'nestjs-elastic-apm';
 
 @Module({
   imports: [
+    ApmModule.register(),
+    LoggerModule.forRootAsync({
+      useFactory: (configService: AppConfigService) => ({
+        pinoHttp: {
+          transport: configService.appConfig.isDev
+            ? { target: 'pino-pretty' }
+            : undefined,
+        },
+      }),
+      inject: [AppConfigService],
+    }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       useFactory: (configService: AppConfigService) => ({
         playground: configService.appConfig.isDev,

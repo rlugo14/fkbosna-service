@@ -3,6 +3,7 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
   Post,
   UseGuards,
@@ -14,6 +15,7 @@ import { AuthGuard } from 'src/guards/auth.guard';
 @UseGuards(AuthGuard)
 @Controller('invoice')
 export class InvoiceController {
+  private readonly logger = new Logger(InvoiceController.name);
   constructor(private readonly invoiceService: InvoiceService) {}
   @Post('/:month/:year')
   @HttpCode(HttpStatus.OK)

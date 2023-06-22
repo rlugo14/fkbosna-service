@@ -1,12 +1,20 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+dotenv.config(); //
+import apm from 'nestjs-elastic-apm';
+import { ValidationPipe, Logger as NestLogger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as express from 'express';
 import { join } from 'path';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
+  app.useLogger(app.get(Logger));
+  app.flushLogs();
 
   app.enableCors({
     origin: true,
@@ -18,7 +26,7 @@ async function bootstrap() {
   const port = process.env.PORT ? process.env.PORT : 3010;
   app.use('/public', express.static(join(__dirname, '..', 'public')));
 
-  Logger.log(`Running on port ${port}`, 'NestApplication');
+  NestLogger.log(`Running on port ${port}`, 'NestApplication');
   await app.listen(port);
 }
 bootstrap();

@@ -1,4 +1,4 @@
-import { UseGuards } from '@nestjs/common';
+import { Logger, UseGuards } from '@nestjs/common';
 import {
   Args,
   Mutation,
@@ -22,18 +22,17 @@ import { FineType } from './models/fine-type.model';
 import { CreateFineTypeInput } from './dto/create-fine-type.input';
 import { PlayerService } from 'src/players/players.service';
 import { AuthUserId } from '../decorators/auth-user.decorator';
-import { ResultArgs } from 'src/shared/dto/results.args';
 import { Player } from 'src/players/models/player.model';
 import { UpdateFineTypeInput } from './dto/update-fine-type.input';
 import { UpdateFineInput } from './dto/update-fine.input';
 import filterNullAndUndefined from 'src/helpers/filterNullAndUndefined';
-import { BatchResponse } from 'src/shared/dto/batch-response.model';
 import { Prisma } from '@prisma/client';
 import { MonthFilterArgs } from 'src/shared/dto/month-filter.args';
 import getMonthLimits from 'src/helpers/getMonthLimits';
 
 @Resolver(() => Fine)
 export class FinesResolver {
+  private readonly logger = new Logger(FinesResolver.name);
   constructor(
     private readonly fineService: FinesService,
     private readonly prismaService: PrismaService,
