@@ -77,6 +77,16 @@ export class AppConfigService {
     };
   }
 
+  get otelCollectorConfig(): {
+    baseUrl: string;
+    serviceName: string;
+  } {
+    return {
+      baseUrl: this.getString('OTEL_COLLECTOR_BASE_URL'),
+      serviceName: this.getString('OTEL_COLLECTOR_SERVICE_NAME'),
+    };
+  }
+
   private isDev(): boolean {
     return this.getEnvironment() === 'DEV';
   }

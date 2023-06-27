@@ -22,11 +22,9 @@ import { SlackModule } from 'nestjs-slack';
 import { FinesModule } from './fines/fines.module';
 import { InvoiceModule } from './invoice/invoice.module';
 import { LoggerModule } from 'nestjs-pino';
-import { ApmModule } from 'nestjs-elastic-apm';
 
 @Module({
   imports: [
-    ApmModule.register(),
     LoggerModule.forRootAsync({
       useFactory: (configService: AppConfigService) => ({
         pinoHttp: {
@@ -89,6 +87,9 @@ import { ApmModule } from 'nestjs-elastic-apm';
 
         WEB_APP_PROTOCOL: Joi.string().default('http://'),
         WEB_APP_HOST: Joi.string().default('localhost:3000'),
+
+        OTEL_COLLECTOR_BASE_URL: Joi.string().default('http://localhost:4318'),
+        OTEL_COLLECTOR_SERVICE_NAME: Joi.string().default('matdienst-service'),
       }),
     }),
     SlackModule.forRootAsync({

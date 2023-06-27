@@ -1,6 +1,4 @@
-import * as dotenv from 'dotenv';
-dotenv.config(); //
-import apm from 'nestjs-elastic-apm';
+import { otelSDK } from './tracing';
 import { ValidationPipe, Logger as NestLogger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -10,6 +8,7 @@ import { join } from 'path';
 import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
+  otelSDK.start();
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
