@@ -21,20 +21,9 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { SlackModule } from 'nestjs-slack';
 import { FinesModule } from './fines/fines.module';
 import { InvoiceModule } from './invoice/invoice.module';
-import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
-    LoggerModule.forRootAsync({
-      useFactory: (configService: AppConfigService) => ({
-        pinoHttp: {
-          transport: configService.appConfig.isDev
-            ? { target: 'pino-pretty' }
-            : undefined,
-        },
-      }),
-      inject: [AppConfigService],
-    }),
     GraphQLModule.forRootAsync<ApolloDriverConfig>({
       useFactory: (configService: AppConfigService) => ({
         playground: configService.appConfig.isDev,
@@ -68,10 +57,14 @@ import { LoggerModule } from 'nestjs-pino';
         NODE_ENV: Joi.string().default('production'),
         PORT: Joi.number().default(4000),
         JWT_SECRET: Joi.string().required(),
+
         AWS_ACCESS_KEY_ID: Joi.string().required(),
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
         AWS_REGION: Joi.string().default('eu-west-1'),
         BUCKET_NAME: Joi.string().default('rlugo14-bucket'),
+        CLOUDWATCH_GROUP_NAME: Joi.string().default('matdienst'),
+        CLOUDWATCH_STREAM_NAME: Joi.string().default('api'),
+        CLOUDWATCH_AWS_REGION: Joi.string().default('eu-west-1'),
 
         EMAIL_SERVICE: Joi.string().optional(),
         EMAIL_SECURE: Joi.boolean().default(true),

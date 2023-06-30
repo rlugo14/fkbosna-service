@@ -3,16 +3,48 @@ import { ValidationPipe, Logger as NestLogger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import {
+  utilities as nestWinstonModuleUtilities,
+  WinstonModule,
+} from 'nest-winston';
+import * as winston from 'winston';
+import * as CloudWatchTransport from 'winston-cloudwatch';
 import * as express from 'express';
 import { join } from 'path';
-import { Logger } from 'nestjs-pino';
+import { AppConfigService } from './shared/services/app-config.service';
 
 async function bootstrap() {
   otelSDK.start();
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
-  app.useLogger(app.get(Logger));
+
+  const configService = app.get(AppConfigService);
+
+  app.useLogger(
+    WinstonModule.createLogger({
+      format: winston.format.uncolorize(),
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.ms(),
+            nestWinstonModuleUtilities.format.nestLike(),
+          ),
+        }),
+        new CloudWatchTransport({
+          name: 'Cloudwatch Logs',
+          logGroupName: configService.awsConfig.cloudWatchGroupName,
+          logStreamName: configService.awsConfig.cloudWatchStreamName,
+          awsAccessKeyId: configService.awsConfig.keyId,
+          awsSecretKey: configService.awsConfig.secretKey,
+          awsRegion: configService.awsConfig.cloudWatchRegion,
+          messageFormatter: (item) => JSON.stringify(item),
+        }),
+      ],
+    }),
+  );
+
   app.flushLogs();
 
   app.enableCors({

@@ -12,6 +12,9 @@ export class AppConfigService {
     const region = this.getString('AWS_REGION');
     const bucketName = this.getString('BUCKET_NAME');
     const invoiceFolderName = this.getString('INVOICE_FOLDER_NAME');
+    const cloudWatchGroupName = this.getString('CLOUDWATCH_GROUP_NAME');
+    const cloudWatchStreamName = this.getString('CLOUDWATCH_STREAM_NAME');
+    const cloudWatchRegion = this.getString('CLOUDWATCH_AWS_REGION');
 
     return {
       keyId,
@@ -20,6 +23,9 @@ export class AppConfigService {
       bucketName,
       invoiceFolderName,
       bucketBaseUrl: `https://${bucketName}.s3.${region}.amazonaws.com`,
+      cloudWatchGroupName,
+      cloudWatchStreamName,
+      cloudWatchRegion,
     };
   }
 
