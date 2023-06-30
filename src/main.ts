@@ -40,6 +40,7 @@ async function bootstrap() {
           awsSecretKey: configService.awsConfig.secretKey,
           awsRegion: configService.awsConfig.cloudWatchRegion,
           messageFormatter: (item) => JSON.stringify(item),
+          silent: configService.appConfig.isDev,
         }),
       ],
     }),
