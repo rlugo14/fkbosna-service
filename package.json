@@ -51,6 +51,7 @@
     "@opentelemetry/sdk-trace-base": "^1.14.0",
     "@opentelemetry/semantic-conventions": "^1.14.0",
     "@prisma/client": "^4.9.0",
+    "@prisma/instrumentation": "^4.16.2",
     "@types/winston": "^2.4.4",
     "apollo-server-express": "^3.11.1",
     "aws-sdk": "^2.1310.0",

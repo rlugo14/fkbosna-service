@@ -14,12 +14,12 @@ import { join } from 'path';
 import { AppConfigService } from './shared/services/app-config.service';
 
 async function bootstrap() {
-  otelSDK.start();
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
 
   const configService = app.get(AppConfigService);
+  configService.appConfig.isProd ? otelSDK.start() : undefined;
 
   app.useLogger(
     WinstonModule.createLogger({

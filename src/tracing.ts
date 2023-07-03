@@ -11,6 +11,7 @@ import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray';
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray';
 import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { PrismaInstrumentation } from '@prisma/instrumentation';
 import { AppConfigService } from './shared/services/app-config.service';
 import { ConfigService } from '@nestjs/config';
 
@@ -58,6 +59,7 @@ export const otelSDK = new NodeSDK({
       },
     }),
     new NestInstrumentation(),
+    new PrismaInstrumentation(),
   ],
 });
 

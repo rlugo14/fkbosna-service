@@ -1,5 +1,5 @@
 import { AppConfigService } from './../shared/services/app-config.service';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Events } from 'src/constants';
 import { TokenService } from 'src/tokens/tokens.service';
@@ -7,6 +7,7 @@ import { UserService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   constructor(
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
@@ -15,6 +16,9 @@ export class AuthService {
   ) {}
 
   async resetPassword(email: string, tenantId: number) {
+    this.logger.log(
+      `resetting password for email: ${email}, tenantId: ${tenantId}`,
+    );
     const foundUser = await this.userService.fetchUniqueByEmail(email);
 
     if (!foundUser || foundUser.tenantId !== tenantId) {
