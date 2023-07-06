@@ -37,7 +37,7 @@ export const otelSDK = new NodeSDK({
   traceExporter,
   //   metricReader,
   instrumentations: [
-    new ExpressInstrumentation(),
+    // new ExpressInstrumentation(),
     new HttpInstrumentation(),
     new GraphQLInstrumentation({
       depth: 0,
@@ -58,8 +58,8 @@ export const otelSDK = new NodeSDK({
         record['aws_xray_trace_id'] = `1-${first}-${last}@${record.span_id}`;
       },
     }),
-    new NestInstrumentation(),
-    new PrismaInstrumentation(),
+    // new NestInstrumentation(),
+    // new PrismaInstrumentation(),
   ],
 });
 
