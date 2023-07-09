@@ -2,6 +2,7 @@ import { ColorService } from './colors.service';
 import {
   HttpException,
   HttpStatus,
+  Logger,
   NotFoundException,
   UseGuards,
 } from '@nestjs/common';
@@ -33,6 +34,7 @@ import { AuthUserId } from 'src/decorators/auth-user.decorator';
 
 @Resolver(() => Color)
 export class ColorsResolver {
+  private readonly logger = new Logger(ColorsResolver.name);
   constructor(
     private readonly prismaService: PrismaService,
     private readonly colorService: ColorService,
@@ -45,6 +47,7 @@ export class ColorsResolver {
   ): Promise<Color> {
     const color = await this.colorService.fetchUnique(id);
     if (!color || color.tenantId !== tenantId) {
+      this.logger.error(`Color: ${JSON.stringify(color)} was not found`);
       throw new NotFoundException(id);
     }
     return color;
@@ -55,6 +58,7 @@ export class ColorsResolver {
     @Args() resultArgs: ResultArgs,
     @TenantId(TenantIdFrom.headers) tenantId: number,
   ): Promise<Color[]> {
+    this.logger.log('Fetching all colors');
     return this.prismaService.color.findMany({
       ...resultArgs,
       where: { tenantId, deletedAt: null },
@@ -69,6 +73,7 @@ export class ColorsResolver {
     @TenantId(TenantIdFrom.token) tenantId: number,
   ): Promise<Color> {
     try {
+      this.logger.log(`Creating new color: ${JSON.stringify(newColorInput)}`);
       const color = await this.prismaService.color.create({
         data: {
           ...newColorInput,
@@ -80,6 +85,10 @@ export class ColorsResolver {
       return color;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
+        this.logger.error(
+          'Trying to create a color that already exists',
+          error.stack,
+        );
         throw new HttpException('Entity Already Exist', HttpStatus.CONFLICT);
       }
     }
@@ -104,6 +113,10 @@ export class ColorsResolver {
       return createdColors;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
+        this.logger.error(
+          'Trying to create a color that already exists',
+          error.stack,
+        );
         throw new HttpException('Entity Already Exist', HttpStatus.CONFLICT);
       }
     }
@@ -113,12 +126,16 @@ export class ColorsResolver {
   @Mutation(() => Boolean)
   async deleteColor(@Args('id') id: number, @AuthUserId() userId: number) {
     try {
+      this.logger.log(
+        `User with ID: ${userId} is deleting color with ID: ${id}`,
+      );
       await this.colorService.verifyUserCanManageColor(userId, id);
       await this.prismaService.color.delete({
         where: { id },
       });
       return true;
     } catch (error) {
+      this.logger.error('Color could not be deleted', error.stack);
       return false;
     }
   }
@@ -136,6 +153,7 @@ export class ColorsResolver {
       data: { colorId: null },
       where: { colorId: { in: deleteManyInput.ids } },
     });
+    this.logger.log(`Deleting many colors: ${JSON.stringify(deleteManyInput)}`);
     return this.prismaService.color.deleteMany({
       where: {
         id: { in: deleteManyInput.ids },
@@ -152,6 +170,11 @@ export class ColorsResolver {
     @AuthUserId() userId: number,
   ): Promise<Color> {
     await this.colorService.verifyUserCanManageColor(userId, whereUnique.id);
+    this.logger.log(
+      `User with ID: ${userId} is updating color: ${JSON.stringify(
+        whereUnique,
+      )}`,
+    );
     return this.prismaService.color.update({
       where: whereUnique,
       data: {

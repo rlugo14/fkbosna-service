@@ -22,6 +22,16 @@ export class AuthService {
     const foundUser = await this.userService.fetchUniqueByEmail(email);
 
     if (!foundUser || foundUser.tenantId !== tenantId) {
+      if (foundUser) {
+        this.logger.error(
+          `User with email: ${email} does not belong to tenant: ${JSON.stringify(
+            foundUser.tenant,
+          )}`,
+        );
+      } else {
+        this.logger.error(`User with email: ${email} was not found`);
+      }
+
       return;
     }
 
@@ -37,15 +47,21 @@ export class AuthService {
       foundUser.tenant.slug,
       token,
     );
+
+    this.logger.log(`Sending `);
     this.sendResetPasswordMail(foundUser.email, resetPasswordLink);
   }
 
   private createResetPasswordLink(tenantSlug: string, token: string) {
+    this.logger.log(
+      `Creating reset password for tenant: ${tenantSlug} - token: ${token}`,
+    );
     const { protocol, host } = this.configService.webAppConfig;
     return `${protocol}${tenantSlug}.${host}/reset-password?token=${token}`;
   }
 
   private sendResetPasswordMail(email: string, resetPasswordLink: string) {
+    this.logger.log(`Sending reset password link to email: ${email}`);
     this.eventEmitter.emit(Events.sendMail, {
       to: email,
       subject: 'Passwort zurücksetzen | Matdienst.de',
