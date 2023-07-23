@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { PlayerImageModule } from 'src/player-image/player-image.module';
 import { TenantsModule } from 'src/tenants/tenants.module';
 import { PlayerController } from './players.controller';
+import { ColorsModule } from 'src/colors/colors.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PlayerController } from './players.controller';
     HttpModule,
     PlayerImageModule,
     TenantsModule,
+    ColorsModule,
   ],
   providers: [PlayersResolver, PlayerService],
   controllers: [PlayerController],

@@ -104,7 +104,7 @@ export class FinesResolver {
       });
     }
 
-    return this.prismaService.fine.create({
+    const createdFine = await this.prismaService.fine.create({
       data: {
         playerId,
         amount,
@@ -114,6 +114,12 @@ export class FinesResolver {
         createdAt: new Date(Date.now()),
       },
     });
+
+    this.logger.log(
+      `Created Fine by User with ID: ${userId} - createdFine: ${createdFine}`,
+    );
+
+    return createdFine;
   }
 
   @UseGuards(AuthGuard)
@@ -143,6 +149,10 @@ export class FinesResolver {
     response.created = await this.prismaService.fine.createMany({
       data: transactionPromises.createManyData,
     });
+
+    this.logger.log(
+      `Created many Fines in batch by User with ID: ${userId} - Fines create in batch response: ${response}`,
+    );
 
     return response;
   }
@@ -196,6 +206,10 @@ export class FinesResolver {
       data: transactionPromises.createManyData,
     });
 
+    this.logger.log(
+      `Many Fines created for all Players by User with ID: ${userId}`,
+    );
+
     return response;
   }
 
@@ -207,7 +221,7 @@ export class FinesResolver {
   ): Promise<FineType> {
     const { name, cost, category } = newFineTypeInput;
 
-    return this.prismaService.fineType.create({
+    const createdFineType = await this.prismaService.fineType.create({
       data: {
         name,
         cost,
@@ -215,6 +229,12 @@ export class FinesResolver {
         category,
       },
     });
+
+    this.logger.log(
+      `Created FineType for tenant with ID: ${tenantId} - createdFineType: ${createdFineType}`,
+    );
+
+    return createdFineType;
   }
 
   @UseGuards(AuthGuard)
@@ -228,12 +248,18 @@ export class FinesResolver {
       updateFineTypeInput.id,
     );
 
-    return this.prismaService.fineType.update({
+    const updatedFineType = await this.prismaService.fineType.update({
       data: {
         ...filterNullAndUndefined(updateFineTypeInput),
       },
       where: { id: updateFineTypeInput.id },
     });
+
+    this.logger.log(
+      `Updated FineType by User with ID: ${userId} - updatedFineType: ${updatedFineType}`,
+    );
+
+    return updatedFineType;
   }
 
   @UseGuards(AuthGuard)
@@ -258,12 +284,18 @@ export class FinesResolver {
       newTotal = 0;
     }
 
-    return this.prismaService.fine.update({
+    const updatedFine = await this.prismaService.fine.update({
       data: {
         ...filterNullAndUndefined({ ...updateFineInput, total: newTotal }),
       },
       where: { id: updateFineInput.id },
     });
+
+    this.logger.log(
+      `Updated Fine by User with ID: ${userId} - updatedFine: ${updatedFine}`,
+    );
+
+    return updatedFine;
   }
 
   @UseGuards(AuthGuard)
@@ -275,6 +307,9 @@ export class FinesResolver {
     await this.fineService.verifyUserCanManageFineType(userId, id);
     await this.fineService.fetchUniqueFineType(id);
     await this.prismaService.fineType.delete({ where: { id } });
+    this.logger.log(
+      `Deleted FineType by User with ID: ${userId} - FineType with ID: ${id}`,
+    );
     return true;
   }
 
@@ -287,6 +322,9 @@ export class FinesResolver {
     await this.fineService.verifyUserCanManageFine(userId, id);
     await this.fineService.fetchUniqueFine(id);
     await this.prismaService.fine.delete({ where: { id } });
+    this.logger.log(
+      `Deleted Fine by User with ID: ${userId} - Fine with ID: ${id}`,
+    );
     return true;
   }
 

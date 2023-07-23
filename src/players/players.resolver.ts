@@ -1,4 +1,4 @@
-import { NotFoundException, UseGuards } from '@nestjs/common';
+import { Logger, NotFoundException, UseGuards } from '@nestjs/common';
 import {
   Args,
   Query,
@@ -26,12 +26,15 @@ import { Tenant } from 'src/tenants/models/tenant.model';
 import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
 import { AuthUserId } from 'src/decorators/auth-user.decorator';
 import { PlayerService } from './players.service';
+import { ColorsGateway } from 'src/colors/colors.gateway';
 
 @Resolver(() => Player)
 export class PlayersResolver {
+  private readonly logger = new Logger(PlayersResolver.name);
   constructor(
     private readonly prismaService: PrismaService,
     private readonly playerService: PlayerService,
+    private readonly colorGateway: ColorsGateway,
   ) {}
 
   @Query(() => Player)
@@ -41,6 +44,9 @@ export class PlayersResolver {
   ): Promise<Player> {
     const player = await this.playerService.fetchUnique(id);
     if (!player || player.tenantId !== tenantId) {
+      this.logger.error(
+        `Player with ID: ${id} for tenantId: ${tenantId} not found`,
+      );
       throw new NotFoundException(id);
     }
     return player;
@@ -102,6 +108,10 @@ export class PlayersResolver {
       });
     }
 
+    this.logger.log(
+      `New Player created for tenantId: ${tenantId} - Player: ${player}`,
+    );
+
     return player;
   }
 
@@ -116,6 +126,10 @@ export class PlayersResolver {
         data: { ...newPlayersInput.data, tenantId },
       });
 
+      this.logger.log(
+        `Created players in batch - count: ${createdPlayers.count}`,
+      );
+
       return createdPlayers;
     } catch {
       return { count: 0 };
@@ -127,6 +141,10 @@ export class PlayersResolver {
     try {
       await this.playerService.verifyUserCanManagePlayer(userId, id);
       await this.prismaService.player.delete({ where: { id } });
+
+      this.logger.log(
+        `Player deleted by User with ID: ${userId} - deleted Player ID. ${id}`,
+      );
       return true;
     } catch (error) {
       return false;
@@ -154,6 +172,10 @@ export class PlayersResolver {
       where: whereUnique,
       include: { tenant: true },
     });
+    this.logger.log(
+      `Player updated by User with ID: ${userId} - updatedPlayer: ${updatedPlayer}`,
+    );
+    this.colorGateway.notifySocketsInRoom(updatedPlayer.tenant.slug);
 
     return updatedPlayer;
   }
@@ -187,9 +209,15 @@ export class PlayersResolver {
     );
     const ids = whereUnique.ids.map((id) => ({ id }));
 
-    return this.prismaService.player.updateMany({
+    const updatedPlayers = await this.prismaService.player.updateMany({
       data: { colorId: null },
       where: { OR: ids, deletedAt: null },
     });
+
+    this.logger.log(
+      `Many Players updated - count: ${updatedPlayers.count} by User with ID: ${userId}`,
+    );
+
+    return updatedPlayers;
   }
 }

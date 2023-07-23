@@ -31,6 +31,9 @@ import { ResultArgs } from '../shared/dto/results.args';
 import { AuthGuard } from '../guards/auth.guard';
 import { TenantId, TenantIdFrom } from 'src/decorators/tenant.decorator';
 import { AuthUserId } from 'src/decorators/auth-user.decorator';
+import { WebSocketServer } from '@nestjs/websockets';
+import { Namespace } from 'socket.io';
+import { ColorsGateway } from './colors.gateway';
 
 @Resolver(() => Color)
 export class ColorsResolver {
@@ -38,6 +41,7 @@ export class ColorsResolver {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly colorService: ColorService,
+    private readonly colorGateway: ColorsGateway,
   ) {}
 
   @Query(() => Color)
@@ -47,7 +51,9 @@ export class ColorsResolver {
   ): Promise<Color> {
     const color = await this.colorService.fetchUnique(id);
     if (!color || color.tenantId !== tenantId) {
-      this.logger.error(`Color: ${JSON.stringify(color)} was not found`);
+      this.logger.error(
+        `Color with ID: ${id} for tenantId: ${tenantId} not found`,
+      );
       throw new NotFoundException(id);
     }
     return color;
@@ -175,7 +181,7 @@ export class ColorsResolver {
         whereUnique,
       )}`,
     );
-    return this.prismaService.color.update({
+    const updatedColor = await this.prismaService.color.update({
       where: whereUnique,
       data: {
         name: updateInput.name?.toUpperCase(),
@@ -183,6 +189,8 @@ export class ColorsResolver {
       },
       include: { tenant: true },
     });
+    this.colorGateway.notifySocketsInRoom(updatedColor.tenant.slug);
+    return updatedColor;
   }
 
   @ResolveField()
