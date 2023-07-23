@@ -109,7 +109,9 @@ export class PlayersResolver {
     }
 
     this.logger.log(
-      `New Player created for tenantId: ${tenantId} - Player: ${player}`,
+      `New Player created for tenantId: ${tenantId} - Player: ${JSON.stringify(
+        player,
+      )}`,
     );
 
     return player;
@@ -173,7 +175,9 @@ export class PlayersResolver {
       include: { tenant: true },
     });
     this.logger.log(
-      `Player updated by User with ID: ${userId} - updatedPlayer: ${updatedPlayer}`,
+      `Player updated by User with ID: ${userId} - updatedPlayer: ${JSON.stringify(
+        updatedPlayer,
+      )}`,
     );
     this.colorGateway.notifySocketsInRoom(updatedPlayer.tenant.slug);
 

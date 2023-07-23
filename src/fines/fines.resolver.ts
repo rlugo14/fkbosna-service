@@ -116,7 +116,9 @@ export class FinesResolver {
     });
 
     this.logger.log(
-      `Created Fine by User with ID: ${userId} - createdFine: ${createdFine}`,
+      `Created Fine by User with ID: ${userId} - createdFine: ${JSON.stringify(
+        createdFine,
+      )}`,
     );
 
     return createdFine;
@@ -151,7 +153,9 @@ export class FinesResolver {
     });
 
     this.logger.log(
-      `Created many Fines in batch by User with ID: ${userId} - Fines create in batch response: ${response}`,
+      `Created many Fines in batch by User with ID: ${userId} - Fines create in batch response: ${JSON.stringify(
+        response,
+      )}`,
     );
 
     return response;
@@ -231,7 +235,9 @@ export class FinesResolver {
     });
 
     this.logger.log(
-      `Created FineType for tenant with ID: ${tenantId} - createdFineType: ${createdFineType}`,
+      `Created FineType for tenant with ID: ${tenantId} - createdFineType: ${JSON.stringify(
+        createdFineType,
+      )}`,
     );
 
     return createdFineType;
@@ -256,7 +262,9 @@ export class FinesResolver {
     });
 
     this.logger.log(
-      `Updated FineType by User with ID: ${userId} - updatedFineType: ${updatedFineType}`,
+      `Updated FineType by User with ID: ${userId} - updatedFineType: ${JSON.stringify(
+        updatedFineType,
+      )}`,
     );
 
     return updatedFineType;
@@ -292,7 +300,9 @@ export class FinesResolver {
     });
 
     this.logger.log(
-      `Updated Fine by User with ID: ${userId} - updatedFine: ${updatedFine}`,
+      `Updated Fine by User with ID: ${userId} - updatedFine: ${JSON.stringify(
+        updatedFine,
+      )}`,
     );
 
     return updatedFine;
