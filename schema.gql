@@ -43,6 +43,7 @@ type Tenant {
 type RegisteredUser {
   id: Float!
   email: String!
+  isEmailVerified: Boolean!
 }
 
 type BatchResponse {
@@ -84,7 +85,7 @@ enum FineTypeCategory {
 type Query {
   player(id: Float!): Player!
   players(skip: Int! = 0, take: Int! = 40): [Player!]!
-  me: Float!
+  me: RegisteredUser!
   isUserEmailAvailable(email: String!): Boolean!
   tenants(skip: Int! = 0, take: Int! = 40): [Tenant!]!
   tenant(slug: String!): Tenant!

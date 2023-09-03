@@ -32,4 +32,7 @@ export class RegisteredUser {
   @Field()
   @IsEmail()
   email: string;
+
+  @Field()
+  isEmailVerified: boolean;
 }

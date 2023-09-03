@@ -117,7 +117,7 @@ export class UsersResolver {
         this.slackService.postMessage(slackMessage);
       }
 
-      return user;
+      return { ...user, isEmailVerified: user.emailVerifiedAt !== null };
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw new HttpException('Entity Already Exist', HttpStatus.CONFLICT);
@@ -148,7 +148,7 @@ export class UsersResolver {
         },
       });
 
-      return user;
+      return { ...user, isEmailVerified: user.emailVerifiedAt !== null };
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         throw new HttpException('Entity Already Exist', HttpStatus.CONFLICT);
@@ -157,13 +157,17 @@ export class UsersResolver {
   }
 
   @UseGuards(AuthGuard)
-  @Query(() => Number)
-  async me(@AuthUserId() userId: number): Promise<number> {
+  @Query(() => RegisteredUser)
+  async me(@AuthUserId() userId: number): Promise<RegisteredUser> {
     const foundUser = await this.prismaService.user.findUnique({
       where: { id: userId },
     });
 
-    return foundUser.id;
+    return {
+      email: foundUser.email,
+      id: foundUser.id,
+      isEmailVerified: foundUser.emailVerifiedAt !== null,
+    };
   }
 
   @Query(() => Boolean)

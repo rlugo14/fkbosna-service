@@ -18,7 +18,7 @@ export class UserService {
     const hash = await this.generatePasswordHash(password);
     return this.prismaService.user.create({
       data: { email, password: hash, tenantId },
-      select: { id: true, email: true, tenant: true },
+      select: { id: true, email: true, tenant: true, emailVerifiedAt: true },
     });
   }
 
