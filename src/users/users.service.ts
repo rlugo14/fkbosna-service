@@ -77,4 +77,13 @@ export class UserService {
     const { protocol, host } = this.configService.webAppConfig;
     return `${protocol}${tenantSlug}.${host}/login`;
   }
+
+  async markEmailAsVerified(email: string) {
+    const foundUser = await this.fetchUniqueByEmail(email);
+    const dateNow = new Date(Date.now()).toISOString();
+    await this.prismaService.user.update({
+      where: { id: foundUser.id },
+      data: { emailVerifiedAt: dateNow },
+    });
+  }
 }

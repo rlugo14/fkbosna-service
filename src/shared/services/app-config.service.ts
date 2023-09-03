@@ -40,6 +40,7 @@ export class AppConfigService {
       nodeEnv: this.getEnvironment(),
       isDev: this.isDev(),
       isProd: this.isProd(),
+      baseUrl: this.getString('BASE_URL'),
     };
   }
 

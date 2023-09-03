@@ -89,6 +89,13 @@ export class UsersResolver {
         },
       });
 
+      this.eventEmitter.emit(
+        Events.sendVerificationEmail,
+        email,
+        user.id,
+        tenantId,
+      );
+
       if (this.configService.appConfig.isProd) {
         const slackMessage = Message({
           channel: this.configService.slackConfig.channelId,

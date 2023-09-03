@@ -8,6 +8,7 @@ import { DecodedTokenPayload } from './interfaces/decodedToken.payload';
 const MINS_15_IN_SECONDS = 15 * 60;
 const MINS_300_IN_SECONDS = 300 * 60;
 const DAY_1_IN_SECONDS = 1 * 24 * 60 * 60;
+const DAY_3_IN_SECONDS = 1 * 24 * 60 * 60;
 
 @Injectable()
 export class TokenService {
@@ -30,9 +31,17 @@ export class TokenService {
   }
 
   async createChangePasswordToken(payload: TokenPayload) {
+    return this.createExpirableToken(payload, DAY_1_IN_SECONDS);
+  }
+
+  async createVerifyEmailToken(payload: TokenPayload) {
+    return this.createExpirableToken(payload, DAY_3_IN_SECONDS);
+  }
+
+  private async createExpirableToken(payload: TokenPayload, expiresIn: number) {
     const token = await this.jwtService.signAsync(payload, {
       secret: this.secret,
-      expiresIn: DAY_1_IN_SECONDS,
+      expiresIn,
     });
 
     const createdToken = await this.createToken(token, payload.userId);
@@ -54,8 +63,12 @@ export class TokenService {
     return res.count;
   }
 
+  decodeToken(token: string) {
+    return this.jwtService.decode(token) as DecodedTokenPayload;
+  }
+
   async checkTokenValidity(token: string) {
-    const decodedToken = this.jwtService.decode(token) as DecodedTokenPayload;
+    const decodedToken = this.decodeToken(token);
 
     if (decodedToken.type === 'refresh') {
       const foundToken = await this.prismaService.token.findFirst({
