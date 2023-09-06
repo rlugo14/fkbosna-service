@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Events } from 'src/constants';
 import { TokenService } from 'src/tokens/tokens.service';
@@ -9,6 +9,8 @@ import { TenantService } from 'src/tenants/tenants.service';
 
 @Injectable()
 export class EmailConfirmationService {
+  private readonly logger = new Logger(EmailConfirmationService.name);
+
   constructor(
     private usersService: UserService,
     private configService: AppConfigService,
@@ -23,9 +25,16 @@ export class EmailConfirmationService {
     userId: number,
     tenantId: number,
   ) {
-    const payload: TokenPayload = { email, userId, tenantId, type: 'refresh' };
+    const payload: TokenPayload = {
+      email,
+      userId,
+      tenantId,
+      type: 'refresh',
+      isEmailConfirmed: false,
+    };
     const token = await this.tokenService.createVerifyEmailToken(payload);
 
+    this.logger.log(`Sending verification Email to: ${email}`);
     return this.eventEmitter.emit(Events.sendMail, {
       to: email,
       subject: 'Bestätige deine E-Mail Adresse | Matdienst.de',
@@ -40,6 +49,7 @@ export class EmailConfirmationService {
     await this.tokenService.checkTokenValidity(token);
     const decodedToken = this.tokenService.decodeToken(token);
     await this.usersService.markEmailAsVerified(decodedToken.email);
+    this.logger.log(`User Email: ${decodedToken.email} - confirmed`);
     await this.tokenService.deleteAll(decodedToken.userId);
     const foundTenant = await this.tenantService.fetchUniqueById(
       decodedToken.tenantId,

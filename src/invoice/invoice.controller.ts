@@ -11,8 +11,9 @@ import {
 import { CreateInvoiceInput } from './dto/create-invoice.input';
 import { InvoiceService } from './invoice.service';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { EmailConfirmedGuard } from 'src/guards/email-confirmed.guard';
 
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, EmailConfirmedGuard)
 @Controller('invoice')
 export class InvoiceController {
   private readonly logger = new Logger(InvoiceController.name);

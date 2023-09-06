@@ -40,6 +40,7 @@ export class AuthService {
       userId: foundUser.id,
       email: foundUser.email,
       tenantId: foundUser.tenantId,
+      isEmailConfirmed: foundUser.emailVerifiedAt !== null,
       type: 'refresh',
     });
 

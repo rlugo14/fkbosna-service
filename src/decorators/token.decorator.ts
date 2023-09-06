@@ -1,6 +1,7 @@
 import {
   bearerTokenFromContext,
   isBearerToken,
+  tokenFromBearer,
 } from '../helpers/extractBearerToken';
 import { ExecutionContext } from '@nestjs/common';
 import { createParamDecorator } from '@nestjs/common';
@@ -11,7 +12,7 @@ export function Token() {
       const bearerToken = bearerTokenFromContext(context);
 
       if (isBearerToken(bearerToken)) {
-        return bearerToken.split(' ')[1];
+        return tokenFromBearer(bearerToken);
       }
     },
   )();

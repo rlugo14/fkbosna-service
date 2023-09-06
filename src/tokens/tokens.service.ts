@@ -4,6 +4,8 @@ import { AppConfigService } from 'src/shared/services/app-config.service';
 import { TokenPayload } from './interfaces/token.payload';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { DecodedTokenPayload } from './interfaces/decodedToken.payload';
+import { isBearerToken, tokenFromBearer } from 'src/helpers/extractBearerToken';
+import { JsonWebTokenError, TokenExpiredError } from 'jsonwebtoken';
 
 const MINS_15_IN_SECONDS = 15 * 60;
 const MINS_300_IN_SECONDS = 300 * 60;
@@ -65,6 +67,27 @@ export class TokenService {
 
   decodeToken(token: string) {
     return this.jwtService.decode(token) as DecodedTokenPayload;
+  }
+
+  validateBearerToken(bearerToken: string): void {
+    if (!isBearerToken(bearerToken)) {
+      throw new UnauthorizedException('Invalid Token');
+    }
+
+    const token = tokenFromBearer(bearerToken);
+
+    try {
+      this.jwtService.verify(token, { secret: this.secret });
+    } catch (error) {
+      switch (error.constructor) {
+        case TokenExpiredError:
+          throw new UnauthorizedException(error.message);
+        case JsonWebTokenError:
+          throw new UnauthorizedException(error.message);
+        default:
+          throw new UnauthorizedException('Invalid Token');
+      }
+    }
   }
 
   async checkTokenValidity(token: string) {

@@ -34,7 +34,7 @@ export function AuthUserEmail() {
       const bearerToken = bearerTokenFromHttp(context);
 
       if (isBearerToken(bearerToken)) {
-        const token = bearerToken.split(' ')[1];
+        const token = tokenFromBearer(bearerToken);
         const decodedToken = jwtService.decode(token) as TokenPayload;
         return decodedToken.email;
       }

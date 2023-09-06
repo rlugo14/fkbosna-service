@@ -6,7 +6,7 @@ import { UserModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [TokenModule, UserModule, TokenModule, JwtModule],
+  imports: [UserModule, TokenModule, JwtModule],
   providers: [AuthService],
   exports: [AuthService],
   controllers: [AuthController],

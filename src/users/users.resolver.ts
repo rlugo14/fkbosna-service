@@ -65,6 +65,7 @@ export class UsersResolver {
       userId: user.id,
       email: user.email,
       tenantId,
+      isEmailConfirmed: user.emailVerifiedAt !== null,
       type: 'access',
     });
   }
