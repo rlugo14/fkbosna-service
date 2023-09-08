@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import {
   ForbiddenException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -16,13 +17,13 @@ import { Tenant } from 'src/tenants/models/tenant.model';
 @Injectable()
 export class PlayerService {
   private tenant: Tenant;
+  private readonly logger = new Logger(PlayerService.name);
   constructor(
     private readonly prismaService: PrismaService,
     private readonly userService: UserService,
     private readonly httpService: HttpService,
     private readonly playerImageService: PlayerImageService,
     private readonly tenantService: TenantService,
-    private readonly appConfigService: AppConfigService,
   ) {}
 
   async fetchUnique(id: number) {
@@ -49,6 +50,9 @@ export class PlayerService {
 
   async importFromFupa(tenantFupaSlug: string, tenantId: number) {
     this.tenant = await this.tenantService.fetchUniqueById(tenantId);
+    this.logger.log(
+      `Tenant: ${this.tenant.name} imported players from FuPa using ${tenantFupaSlug}`,
+    );
     await this.prismaService.player.deleteMany({ where: { tenantId } });
     const squadUrl = `https://api.fupa.net/v1/teams/${tenantFupaSlug}/squad`;
     return this.httpService.get<FetchFupaSquadResponse>(squadUrl).pipe(

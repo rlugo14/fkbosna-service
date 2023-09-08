@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import {
   CreateInvoiceInput,
   FineData,
@@ -20,6 +20,7 @@ export class InvoiceService {
   private invoiceMonth: string;
   private invoiceYear: string;
   private withDetails: boolean;
+  private readonly logger = new Logger(InvoiceService.name);
   constructor(
     private readonly httpService: HttpService,
     private readonly s3: S3ManagerService,
@@ -41,6 +42,14 @@ export class InvoiceService {
       tenantImageName,
     } = createInvoiceInput;
     this.withDetails = withDetails;
+
+    this.logger.log(
+      `Tenant: ${tenantName} requested a ${
+        this.withDetails ? 'detailed' : 'general'
+      } PDF invoice for ${getMonthNameDe(this.invoiceMonth)} - ${
+        this.invoiceYear
+      }`,
+    );
 
     await this.createDocumentHeader(tenantName, tenantSlug, tenantImageName);
     players.forEach((player) => {
