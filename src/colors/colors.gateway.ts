@@ -15,6 +15,10 @@ export class ColorsGateway {
   async handleJoinRoom(socket: Socket, tenantSlug: string) {
     socket.join(tenantSlug);
     this.logger.log(`${socket.id} joined room ${tenantSlug}`);
+    const socketsInRoom = await this.io.in(tenantSlug).fetchSockets();
+    this.logger.log(
+      `Amount of sockets in room "${tenantSlug}": ${socketsInRoom.length}`,
+    );
   }
 
   notifySocketsInRoom(roomName: string) {
