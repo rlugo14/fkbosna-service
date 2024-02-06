@@ -1,0 +1,55 @@
+name: Build & Deployment
+
+on:
+  push:
+    branches:
+      - 'master'
+
+env:
+  REMOTE_WORKING_DIRECTORY: compose/matdienst/service
+
+jobs:
+  build:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          path: repository
+
+      - name: Copy Repository over SSH
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: repository
+          remote: ${{ env.REMOTE_WORKING_DIRECTORY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          privateKey: ${{ secrets.SSH_KEY }}
+          rmRemote: true
+
+      - name: Build ENV
+        run: |
+          echo "${{ secrets.SERVICE_ENV }}" | base64 -d > .env
+
+      - name: Copy ENV over SSH
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: .env
+          remote: ${{ env.REMOTE_WORKING_DIRECTORY }}/.env
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          privateKey: ${{ secrets.SSH_KEY }}
+
+      - name: Docker Compose Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ env.REMOTE_WORKING_DIRECTORY }}
+            docker compose up --build -d
+            docker compose images
+            docker image prune --all --force
+            rm .env

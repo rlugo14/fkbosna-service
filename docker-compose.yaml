@@ -1,0 +1,94 @@
+version: "3.8"
+
+services:
+  matdienst-service:
+    container_name: matdienst-service
+    image: rlugo14/matdienst-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - gateway
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.matdienst-service.rule=Host(`api.matdienst.de`)"
+      - "traefik.http.routers.matdienst-service.entrypoints=websecure"
+      - "traefik.http.routers.matdienst-service.tls=true"
+      - "traefik.http.routers.matdienst-service.tls.certresolver=myresolver"
+      - "traefik.http.routers.matdienst-service.tls.domains[0].main=*.matdienst.de"
+      - "traefik.http.routers.matdienst-service.middlewares=matdienst-service"
+      - "traefik.http.services.matdienst-service.loadbalancer.server.port=4000"
+      - "traefik.http.middlewares.matdienst-service.headers.accesscontrolalloworiginlist=*"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_URL: ${DATABASE_URL}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      BUCKET_NAME: ${BUCKET_NAME}
+      INVOICE_FOLDER_NAME: ${INVOICE_FOLDER_NAME}
+      CLOUDWATCH_GROUP_NAME: ${CLOUDWATCH_GROUP_NAME}
+      CLOUDWATCH_STREAM_NAME: ${CLOUDWATCH_STREAM_NAME}
+      CLOUDWATCH_AWS_REGION: ${CLOUDWATCH_AWS_REGION}
+      EMAIL_SERVICE: ${EMAIL_SERVICE}
+      EMAIL_HOST: ${EMAIL_HOST}
+      EMAIL_SECURE: ${EMAIL_SECURE}
+      EMAIL_PORT: ${EMAIL_PORT}
+      EMAIL_USER: ${EMAIL_USER}
+      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
+      WEB_APP_PROTOCOL: ${WEB_APP_PROTOCOL}
+      WEB_APP_HOST: ${WEB_APP_HOST}
+      OTEL_COLLECTOR_BASE_URL: ${OTEL_COLLECTOR_BASE_URL}
+      OTEL_COLLECTOR_SERVICE_NAME: ${OTEL_COLLECTOR_SERVICE_NAME}
+      BASE_URL: ${BASE_URL}
+      SLACK_TOKEN: ${SLACK_TOKEN}
+      SLACK_CHANNEL_ID: ${SLACK_CHANNEL_ID}
+
+
+  matdienst-db:
+    container_name: matdienst-db
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - gateway
+    restart: always
+    volumes:
+      - ./initial-data.sql:/docker-entrypoint-initdb.d/data.sql
+      - matdienst-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+
+  matdienst-db-backups:
+    image: offen/docker-volume-backup:v1.0.2
+    environment:
+      BACKUP_CRON_EXPRESSION: ${BACKUP_CRON_EXPRESSION}
+      BACKUP_FILENAME: ${BACKUP_FILENAME}
+      BACKUP_RETENTION_DAYS: ${BACKUP_RETENTION_DAYS}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - matdienst-db-data:/backup/db-data:ro
+
+volumes:
+  matdienst-db-data:
+    name: matdienst-db-data
+    external: true
+
+networks:
+  gateway:
+    external: true
