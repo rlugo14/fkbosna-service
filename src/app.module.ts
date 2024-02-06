@@ -18,7 +18,6 @@ import { TenantsModule } from './tenants/tenants.module';
 import { TenantImageModule } from './tenant-image/tenant-image.module';
 import * as Joi from 'joi';
 import { EventEmitterModule } from '@nestjs/event-emitter';
-import { SlackModule } from 'nestjs-slack';
 import { FinesModule } from './fines/fines.module';
 import { InvoiceModule } from './invoice/invoice.module';
 
@@ -85,14 +84,6 @@ import { InvoiceModule } from './invoice/invoice.module';
         OTEL_COLLECTOR_BASE_URL: Joi.string().default('http://localhost:4318'),
         OTEL_COLLECTOR_SERVICE_NAME: Joi.string().default('matdienst-service'),
       }),
-    }),
-    SlackModule.forRootAsync({
-      useFactory: (configService: AppConfigService) => ({
-        type: 'api',
-        token: configService.slackConfig.token,
-      }),
-      isGlobal: true,
-      inject: [AppConfigService],
     }),
     EventEmitterModule.forRoot(),
     PrismaModule,

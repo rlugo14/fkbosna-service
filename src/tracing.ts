@@ -2,16 +2,13 @@ import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import * as process from 'process';
 import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
-import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { GraphQLInstrumentation } from '@opentelemetry/instrumentation-graphql';
-import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { Resource } from '@opentelemetry/resources';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray';
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray';
 import { WinstonInstrumentation } from '@opentelemetry/instrumentation-winston';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { PrismaInstrumentation } from '@prisma/instrumentation';
 import { AppConfigService } from './shared/services/app-config.service';
 import { ConfigService } from '@nestjs/config';
 

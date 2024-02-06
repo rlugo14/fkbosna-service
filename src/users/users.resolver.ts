@@ -23,7 +23,6 @@ import { TokenService } from 'src/tokens/tokens.service';
 import { Boolean } from 'aws-sdk/clients/batch';
 import { Token } from 'src/decorators/token.decorator';
 import * as randomatic from 'randomatic';
-import { SlackService } from 'nestjs-slack';
 import { Blocks, Message } from 'slack-block-builder';
 
 @Resolver(() => User)
@@ -36,7 +35,6 @@ export class UsersResolver {
     private readonly userService: UserService,
     private readonly eventEmitter: EventEmitter2,
     private readonly configService: AppConfigService,
-    private readonly slackService: SlackService,
   ) {}
 
   @Mutation(() => String)
@@ -115,7 +113,6 @@ export class UsersResolver {
           )
           .asUser()
           .buildToObject();
-        this.slackService.postMessage(slackMessage);
       }
 
       return { ...user, isEmailVerified: user.emailVerifiedAt !== null };
