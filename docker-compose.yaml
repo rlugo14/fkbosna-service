@@ -21,7 +21,7 @@ services:
       - "traefik.http.services.matdienst-service.loadbalancer.server.port=4000"
       - "traefik.http.middlewares.matdienst-service.headers.accesscontrolalloworiginlist=*"
     depends_on:
-      db:
+      matdienst-db:
         condition: service_healthy
     environment:
       PORT: ${PORT}
