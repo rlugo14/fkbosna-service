@@ -13,6 +13,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.matdienst-service.rule=Host(`api.matdienst.de`)"
+      - "traefik.http.routers.matdienst-service.priority=2"
       - "traefik.http.routers.matdienst-service.entrypoints=websecure"
       - "traefik.http.routers.matdienst-service.tls=true"
       - "traefik.http.routers.matdienst-service.tls.certresolver=myresolver"
